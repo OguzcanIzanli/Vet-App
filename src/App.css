@@ -11,3 +11,34 @@
   --color-3: #e0aed0;
   --color-4: #ffe5e5;
 }
+
+.container {
+  width: 95%;
+  margin: 0 auto;
+}
+
+#table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  padding: 8px;
+}
+td {
+  padding: 4px 8px;
+}
+
+td:last-child {
+  width: 50px;
+  text-align: center;
+}
+
+thead {
+  text-align: left;
+  background: linear-gradient(90deg, var(--color-1) 25%, var(--color-2) 100%);
+}
+
+a {
+  text-decoration: none;
+}

@@ -1,5 +1,6 @@
 import backend from "../services/backend";
 import { useQuery, useMutation, useQueryClient } from "react-query";
+import { CustomerType } from "../pages/Customer/types";
 
 export const useCustomerQuery = () => {
   const queryClient = useQueryClient();
@@ -11,7 +12,8 @@ export const useCustomerQuery = () => {
 
   const addCustomer = useMutation({
     mutationKey: ["customer"],
-    mutationFn: (newPost) => backend.customerService.post(newPost),
+    mutationFn: (newCustomer: CustomerType) =>
+      backend.customerService.post(newCustomer),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
     },
@@ -19,16 +21,11 @@ export const useCustomerQuery = () => {
 
   const removeCustomer = useMutation({
     mutationKey: ["customer"],
-    mutationFn: (id) => backend.customerService.remove(id),
+    mutationFn: (id: string) => backend.customerService.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
     },
   });
-
-  //   const find = useQuery({
-  //     queryKey: ["animal", id],
-  //     queryFn: () => backend.animalService.find(id).then((res) => res.data),
-  //   });
 
   return { listCustomers, addCustomer, removeCustomer };
 };
