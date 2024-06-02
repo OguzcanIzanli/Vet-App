@@ -1,36 +1,19 @@
 import "./App.css";
-import { useCustomerQuery } from "./queries/useCustomerQuery";
-
-const obj = {
-  address: "asdasd",
-  city: "asd",
-  email: "dsads",
-  name: "4",
-  phone: "123",
-};
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Customer from "./pages/Customer";
+import Animal from "./pages/Animal";
+import Doctor from "./pages/Doctor";
 
 function App() {
-  const { data } = useCustomerQuery().listCustomers;
-  const { mutate: addCustomer } = useCustomerQuery().addCustomer;
-  const { mutate: removeCustomer } = useCustomerQuery().removeCustomer;
-
-  const handleRemove = (e) => {
-    const { id } = e.target;
-    removeCustomer(id);
-    console.log(data?.data.content);
-  };
-
   return (
     <>
-      {data?.data.content.map((item) => (
-        <div key={item.id}>
-          {item.id} - {item.name} - {item.email} - {item.city} -{" "}
-          <button id={item.id} onClick={handleRemove}>
-            Delete
-          </button>
-        </div>
-      ))}
-      <button onClick={() => addCustomer(obj)}>ekle</button>
+      <Navbar />
+      <Routes>
+        <Route path="/customer" element={<Customer />} />
+        <Route path="/animal" element={<Animal />} />
+        <Route path="/doctor" element={<Doctor />} />
+      </Routes>
     </>
   );
 }
