@@ -17,21 +17,13 @@
   margin: 0 auto;
 }
 
+/* Table */
 #table {
   width: 100%;
   border-collapse: collapse;
-}
-
-th {
-  padding: 8px;
-}
-td {
-  padding: 4px 8px;
-}
-
-td:last-child {
-  width: 50px;
-  text-align: center;
+  box-shadow: 1px 1px 4px 1px rgba(0, 0, 0, 0.57);
+  border-radius: 8px;
+  table-layout: fixed;
 }
 
 thead {
@@ -39,6 +31,156 @@ thead {
   background: linear-gradient(90deg, var(--color-1) 25%, var(--color-2) 100%);
 }
 
+th {
+  padding: 8px;
+  font-size: 1.1rem;
+}
+
+th:first-child {
+  border-top-left-radius: 8px;
+}
+
+th:last-child {
+  border-top-right-radius: 8px;
+}
+
+td {
+  padding: 4px 8px;
+  font-size: 1.1rem;
+}
+
+th:last-child {
+  width: 90px;
+}
+
+tr:nth-child(even) {
+  background: linear-gradient(90deg, #756ab62c 25%, #ac87c527 100%);
+}
+
+td input {
+  width: auto;
+  font-size: 1.1rem;
+  background-color: var(--color-4);
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* Anchor */
 a {
   text-decoration: none;
+}
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputContainer form div {
+  margin: 0;
+  font-size: 1.4rem;
+  height: 55px;
+}
+
+.addBtn {
+  align-self: flex-end;
+  width: 350px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  gap: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(90deg, var(--color-1) 25%, var(--color-2) 100%);
+  color: white;
+  padding: 4px 0;
+  margin-bottom: 60px;
+  transition: all 0.2s;
+}
+
+.addBtn:hover {
+  background: linear-gradient(90deg, var(--color-2) 25%, var(--color-1) 100%);
+  scale: 0.95;
+}
+
+.addBtn:active {
+  opacity: 0.9;
+  scale: 0.9;
+}
+
+/* Page Headers  */
+
+.pageHeader {
+  text-align: center;
+  font-size: 2.3rem;
+  font-weight: 500;
+  padding: 40px 0;
+}
+
+.pageListHeader {
+  font-size: 2.3rem;
+  font-weight: 500;
+}
+
+.pageInputsHeader {
+  font-size: 2.3rem;
+  font-weight: 500;
+}
+
+/* List Size  */
+
+.listSize {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  padding: 8px 0;
+  gap: 8px;
+  font-size: 1rem;
+}
+
+.listSize select {
+  font-size: 1.1rem;
+  font-weight: 500;
+  border: none;
+  background: linear-gradient(90deg, var(--color-1) 25%, var(--color-2) 100%);
+  color: var(--color-4);
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.listSize option {
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: var(--color-2);
+}
+
+/* Delete and Save Icon Buttons  */
+.iconDelete,
+.iconSave {
+  display: flex;
+  margin: 0 auto;
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 2px;
+  border-radius: 16px;
+}
+
+.iconDelete:hover {
+  background-color: #f6f5f5;
+  color: #ee4266;
+  scale: 1.2;
+}
+
+.iconSave:hover {
+  background-color: #f6f5f5;
+  color: #337357;
+  scale: 1.2;
 }

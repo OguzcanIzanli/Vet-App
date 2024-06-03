@@ -3,26 +3,32 @@ import { useCustomerQuery } from "../../queries/useCustomerQuery";
 import { CustomerType, initialCustomer } from "./types";
 import IconSend from "../../assets/icons/IconSend";
 import IconDelete from "../../assets/icons/IconDelete";
+import IconSave from "../../assets/icons/IconSave";
+import Pagination from "../../components/Pagination";
+import Input from "../../components/Input";
 
 const Customer = () => {
-  // FETCH DATA
-  const { data } = useCustomerQuery("").listCustomers;
-  const customers = data?.data.content;
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+
+  const { listCustomers, addCustomer, removeCustomer, updateCustomer } =
+    useCustomerQuery(page, size);
+
+  const [newCustomer, setNewCustomer] = useState(initialCustomer);
+  const [updatedCustomer, setUpdatedCustomer] = useState(initialCustomer);
+
+  const customers = listCustomers.data?.data.content;
+  const totalPages = listCustomers.data?.data.totalPages;
 
   // REMOVE
-  const { mutate: removeCustomer } = useCustomerQuery("").removeCustomer;
-
   const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
     const id = e.currentTarget.id;
-    removeCustomer(id);
+    removeCustomer.mutate(id);
   };
 
   // ADD
-  const { mutate: addCustomer } = useCustomerQuery("").addCustomer;
-  const [newCustomer, setNewCustomer] = useState(initialCustomer);
-
   const handleAdd = () => {
-    addCustomer(newCustomer);
+    addCustomer.mutate(newCustomer);
     setNewCustomer(initialCustomer);
   };
 
@@ -31,57 +37,44 @@ const Customer = () => {
     setNewCustomer((prev) => ({ ...prev, [name]: value }));
   };
 
-  const [updatedCustomer, setUpdatedCustomer] = useState(initialCustomer);
-
-  // const [editingCustomer, setEditingCustomer] = useState({
-  //   id: "",
-  //   field: "",
-  //   value: "",
-  // });
-  // const { mutate: updateCustomer } = useCustomerQuery("").updateCustomer;
-
-  // console.log(useCustomerQuery(editingCustomer.id).findCustomer);
-
-  // const handleUpdate = (id: string, field: string, value: string) => {
-  //   const updatedData = { ...was.data, [field]: value };
-
-  //   updateCustomer({ id, data: updatedData });
-  //   console.log(updatedData);
-  //   setEditingCustomer({ id: "", field: "", value: "" });
-  // };
-
-  // const handleEdit = (
-  //   id: string,
-  //   field: string,
-  //   value: string,
-  //   index: number
-  // ) => {
-  //   console.log(customers[index]);
-  //   setEditingCustomer({ id, field, value });
-  // };
-
-  // const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   if (editingCustomer) {
-  //     setEditingCustomer((prev) =>
-  //       prev ? { ...prev, value: e.target.value } : prev
-  //     );
-  //   }
-  // };
-
+  // UPDATE
   const handleEdit = (item: CustomerType) => {
     setUpdatedCustomer(item);
   };
 
-  const handleField = (field: string) => {
-    console.log(field);
+  const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (updatedCustomer) {
+      const { name, value } = e.target;
+      setUpdatedCustomer({
+        ...updatedCustomer,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
+    const id = e.currentTarget.id;
+    updateCustomer.mutate({ id, data: updatedCustomer });
+    setUpdatedCustomer(initialCustomer);
+  };
+
+  // DATA SIZE ON PAGE
+  const handleSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSize(Number(e.target.value));
   };
 
   return (
     <>
-      <h2>Müşteri Yönetimi</h2>
-
-      <h2>Müşteri Listesi</h2>
-
+      <div className="pageHeader">Müşteri Yönetimi</div>
+      <div className="pageListHeader">Müşteri Listesi</div>
+      <div className="listSize">
+        <p>Sayfada Gösterilecek Müşteri Sayısı</p>
+        <select value={size} onChange={handleSizeChange}>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+          <option value={50}>50</option>
+        </select>
+      </div>
       <table id="table">
         <thead>
           <tr>
@@ -94,87 +87,123 @@ const Customer = () => {
           </tr>
         </thead>
         <tbody>
-          {customers?.map((item: CustomerType) => (
-            // <tr onClick={() => handleEdit(item)} key={item.id}>
-            //   <td onClick={() => handleField(item.name)}>{item.name}</td>
-            //   <td onClick={() => handleField(item.email)}>{item.email}</td>
-            //   <td onClick={() => handleField(item.address)}>{item.address}</td>
-            //   <td onClick={() => handleField(item.city)}>{item.city}</td>
-            //   <td onClick={() => handleField(item.phone)}>{item.phone}</td>
-            //   <td>
-            //     <button id={item.id} onClick={handleRemove}>
-            //       <IconDelete />
-            //     </button>
-            //   </td>
-            // </tr>
-            <tr onClick={() => handleEdit(item)} key={item.id}>
-              {["name", "email", "address", "city", "phone"].map((field) => (
-                <td key={field}>
-                  {/* {editingCustomer?.id === item.id &&
-                  editingCustomer?.field === field ? (
-                    <input
-                      type="text"
-                      value={editingCustomer.value}
-                      onChange={handleFieldChange}
-                      onBlur={() =>
-                        handleUpdate(item.id, field, editingCustomer.value)
-                      }
-                    />
-                  ) : ( */}
-                  {item[field]}
-                  {/* )} */}
+          {customers?.map((item: CustomerType) =>
+            updatedCustomer?.id === item.id ? (
+              <tr key={item.id}>
+                <td>
+                  <input
+                    type="text"
+                    name="name"
+                    value={updatedCustomer.name}
+                    onChange={handleFieldChange}
+                  />
                 </td>
-              ))}
-              <td>
-                <button id={item.id} onClick={handleRemove}>
-                  <IconDelete />
-                </button>
-              </td>
-            </tr>
-          ))}
+                <td>
+                  <input
+                    name="email"
+                    value={updatedCustomer.email}
+                    type="email"
+                    onChange={handleFieldChange}
+                  />
+                </td>
+                <td>
+                  <input
+                    name="address"
+                    value={updatedCustomer.address}
+                    type="text"
+                    onChange={handleFieldChange}
+                  />
+                </td>
+                <td>
+                  <input
+                    name="city"
+                    value={updatedCustomer.city}
+                    type="text"
+                    onChange={handleFieldChange}
+                  />
+                </td>
+                <td>
+                  <input
+                    name="phone"
+                    value={updatedCustomer.phone}
+                    type="number"
+                    onChange={handleFieldChange}
+                  />
+                </td>
+                <td>
+                  <button
+                    className="iconSave"
+                    id={item.id}
+                    onClick={handleUpdate}
+                  >
+                    <IconSave />
+                  </button>
+                </td>
+              </tr>
+            ) : (
+              <tr key={item.id}>
+                <td onClick={() => handleEdit(item)}>{item.name}</td>
+                <td onClick={() => handleEdit(item)}>{item.email}</td>
+                <td onClick={() => handleEdit(item)}>{item.address}</td>
+                <td onClick={() => handleEdit(item)}>{item.city}</td>
+                <td onClick={() => handleEdit(item)}>{item.phone}</td>
+                <td>
+                  <button
+                    className="iconDelete"
+                    id={item.id}
+                    onClick={handleRemove}
+                  >
+                    <IconDelete />
+                  </button>
+                </td>
+              </tr>
+            )
+          )}
         </tbody>
       </table>
+      <Pagination page={page} totalPages={totalPages} setPage={setPage} />
 
-      <h2>Müşteri Ekle</h2>
-
-      <input
-        name="name"
-        value={newCustomer.name}
-        type="text"
-        placeholder="Ad"
-        onChange={customerInputChange}
-      />
-      <input
-        name="email"
-        value={newCustomer.email}
-        type="text"
-        placeholder="Email"
-        onChange={customerInputChange}
-      />
-      <input
-        name="address"
-        value={newCustomer.address}
-        type="text"
-        placeholder="Adres"
-        onChange={customerInputChange}
-      />
-      <input
-        name="city"
-        value={newCustomer.city}
-        type="text"
-        placeholder="Yaşadığı Şehir"
-        onChange={customerInputChange}
-      />
-      <input
-        name="phone"
-        value={newCustomer.phone}
-        type="text"
-        placeholder="Telefon"
-        onChange={customerInputChange}
-      />
-      <button onClick={handleAdd}>
-        Ekle <IconSend />
-      </button>
+      <div className="inputContainer">
+        <div className="pageInputsHeader">Müşteri Ekle</div>
+        <Input
+          label="Müşteri Adı"
+          name="name"
+          value={newCustomer.name}
+          type="text"
+          onChange={customerInputChange}
+        />
+        <Input
+          label="Müşteri Email"
+          name="email"
+          value={newCustomer.email}
+          type="email"
+          onChange={customerInputChange}
+        />
+        <Input
+          label="Müşteri Adres"
+          name="address"
+          value={newCustomer.address}
+          type="text"
+          onChange={customerInputChange}
+        />
+        <Input
+          label="Müşteri Yaşadığı Şehir"
+          name="city"
+          value={newCustomer.city}
+          type="text"
+          onChange={customerInputChange}
+        />
+        <Input
+          label="Müşteri Telefon"
+          name="phone"
+          value={newCustomer.phone}
+          type="number"
+          onChange={customerInputChange}
+        />
+        <button className="addBtn" onClick={handleAdd}>
+          Ekle <IconSend />
+        </button>
+      </div>
     </>
   );
 };
