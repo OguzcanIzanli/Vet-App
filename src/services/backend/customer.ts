@@ -9,6 +9,6 @@ export const post = (data: CustomerType) =>
 export const remove = (id: string) =>
   instance.delete(`/api/v1/customers/${id}`);
 
-// export const find = (id) => instance.get(`/api/v1/customers/${id}`);
+export const put = (id: string, data: CustomerType) => instance.put(`/api/v1/customers/${id}`, data);
 
-// export const put = (id, data) => instance.put(`/api/v1/customers/${id}`, data);
+export const find = (id: string) => instance.get(`/api/v1/customers/${id}`);
