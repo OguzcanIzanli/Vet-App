@@ -47,6 +47,7 @@ th:last-child {
 td {
   padding: 4px 8px;
   font-size: 1.1rem;
+  overflow: hidden;
 }
 
 th:last-child {

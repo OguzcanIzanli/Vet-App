@@ -67,14 +67,21 @@ const Customer = () => {
     <>
       <div className="pageHeader">Müşteri Yönetimi</div>
       <div className="pageListHeader">Müşteri Listesi</div>
-      <div className="listSize">
-        <p>Sayfada Gösterilecek Müşteri Sayısı</p>
-        <select value={size} onChange={handleSizeChange}>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={50}>50</option>
-        </select>
+
+      <div>
+        <div>
+          <input type="text" /> <button>Ara</button>
+        </div>
+        <div className="listSize">
+          <p>Sayfada Gösterilecek Müşteri Sayısı</p>
+          <select value={size} onChange={handleSizeChange}>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
       </div>
+
       <table id="table">
         <thead>
           <tr>
