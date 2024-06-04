@@ -1,6 +1,8 @@
 import { useState, ChangeEvent, MouseEvent } from "react";
 import { useDoctorQuery } from "../../queries/useDoctorQuery";
+import { useWorkdayQuery } from "../../queries/useWorkdayQuery";
 import { DoctorType, initialDoctor } from "./types";
+import { initialWorkday } from "../Workday/types";
 import IconSend from "../../assets/icons/IconSend";
 import IconDelete from "../../assets/icons/IconDelete";
 import IconSave from "../../assets/icons/IconSave";
@@ -14,26 +16,26 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
-import dayjs, { Dayjs } from "dayjs";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import { Dayjs } from "dayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const Doctor = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
-  const [value, setValue] = useState<Dayjs | null>(null);
 
   const { listDoctors, addDoctor, removeDoctor, updateDoctor } = useDoctorQuery(
     page,
     size
   );
 
+  const { addWorkday } = useWorkdayQuery();
+
   const [newDoctor, setNewDoctor] = useState(initialDoctor);
+  const [newDate, setNewDate] = useState(initialWorkday);
   const [updatedDoctor, setUpdatedDoctor] = useState(initialDoctor);
-  const [selectedDoctor, setSelectedDoctor] = useState<DoctorType>();
 
   const doctors = listDoctors.data?.data.content;
   const totalPages = listDoctors.data?.data.totalPages;
@@ -45,7 +47,7 @@ const Doctor = () => {
   };
 
   // ADD
-  const handleAdd = () => {
+  const handleDoctorAdd = () => {
     addDoctor.mutate(newDoctor);
     setNewDoctor(initialDoctor);
   };
@@ -82,14 +84,23 @@ const Doctor = () => {
     setSize(Number(value));
   };
 
-  // DOCTOR SELECTION
+  // DOCTOR SELECTION AND DATE SELECTION
 
   const doctorSelectionChange = (e: SelectChangeEvent<string>) => {
-    const doctor = doctors?.find(
-      (doc: DoctorType) => doc.id === e.target.value
-    );
-    setSelectedDoctor(doctor);
-    console.log(doctor);
+    setNewDate({ ...newDate, doctorId: Number(e.target.value) });
+  };
+
+  const dateSelectionChange = (e: Dayjs | null) => {
+    setNewDate({
+      ...newDate,
+      workDate: e?.format().slice(0, e?.format().indexOf("T")),
+    });
+    console.log(newDate);
+  };
+
+  const handleDateAdd = () => {
+    addWorkday.mutate(newDate);
+    setNewDate(initialWorkday);
   };
 
   return (
@@ -235,7 +246,7 @@ const Doctor = () => {
             type="number"
             onChange={doctorInputChange}
           />
-          <button className="addBtn" onClick={handleAdd}>
+          <button className="addBtn" onClick={handleDoctorAdd}>
             Ekle <IconSend />
           </button>
         </div>
@@ -249,7 +260,7 @@ const Doctor = () => {
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                value={selectedDoctor?.name}
+                value={newDate?.doctorId.toString() || ""}
                 label="Doktor Seçiniz"
                 onChange={doctorSelectionChange}
               >
@@ -261,21 +272,16 @@ const Doctor = () => {
               </Select>
             </FormControl>
           </Box>
-
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <Stack spacing={2} sx={{ minWidth: 305 }}>
-              <DateTimePicker
-                value={value}
-                onChange={setValue}
-                referenceDate={dayjs("2022-04-17T15:30")}
+            <DemoContainer components={["DatePicker"]}>
+              <DatePicker
+                value={null}
+                onChange={(e) => dateSelectionChange(e)}
               />
-              <Typography>
-                Stored value: {value == null ? "null" : value.format()}
-              </Typography>
-            </Stack>
+            </DemoContainer>
           </LocalizationProvider>
 
-          <button className="addBtn" onClick={handleAdd}>
+          <button className="addBtn" onClick={handleDateAdd}>
             Ekle <IconSend />
           </button>
         </div>
