@@ -24,7 +24,7 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 const Doctor = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
-  const [value, setValue] = React.useState<Dayjs | null>(null);
+  const [value, setValue] = useState<Dayjs | null>(null);
 
   const { listDoctors, addDoctor, removeDoctor, updateDoctor } = useDoctorQuery(
     page,
@@ -261,6 +261,7 @@ const Doctor = () => {
               </Select>
             </FormControl>
           </Box>
+
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Stack spacing={2} sx={{ minWidth: 305 }}>
               <DateTimePicker
@@ -273,6 +274,7 @@ const Doctor = () => {
               </Typography>
             </Stack>
           </LocalizationProvider>
+
           <button className="addBtn" onClick={handleAdd}>
             Ekle <IconSend />
           </button>
