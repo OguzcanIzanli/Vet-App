@@ -5,17 +5,17 @@ import IconSend from "../../assets/icons/IconSend";
 import IconDelete from "../../assets/icons/IconDelete";
 import IconSave from "../../assets/icons/IconSave";
 import Pagination from "../../components/Pagination";
-import Input from "../../components/Input";
+import InputTextField from "../../components/InputTextField";
 
 const Customer = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
-
-  const { listCustomers, addCustomer, removeCustomer, updateCustomer } =
-    useCustomerQuery(page, size);
-
   const [newCustomer, setNewCustomer] = useState(initialCustomer);
   const [updatedCustomer, setUpdatedCustomer] = useState(initialCustomer);
+  const [searchByName, setSearchByName] = useState("");
+
+  const { listCustomers, addCustomer, removeCustomer, updateCustomer } =
+    useCustomerQuery(page, size, searchByName);
 
   const customers = listCustomers.data?.data.content;
   const totalPages = listCustomers.data?.data.totalPages;
@@ -43,13 +43,11 @@ const Customer = () => {
   };
 
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (updatedCustomer) {
-      const { name, value } = e.target;
-      setUpdatedCustomer({
-        ...updatedCustomer,
-        [name]: value,
-      });
-    }
+    const { name, value } = e.target;
+    setUpdatedCustomer({
+      ...updatedCustomer,
+      [name]: value,
+    });
   };
 
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
@@ -63,14 +61,25 @@ const Customer = () => {
     setSize(Number(e.target.value));
   };
 
+  // SEARCH
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setSearchByName(value);
+  };
+
   return (
     <>
       <div className="pageHeader">Müşteri Yönetimi</div>
       <div className="pageListHeader">Müşteri Listesi</div>
 
-      <div>
-        <div>
-          <input type="text" /> <button>Ara</button>
+      <div className="filterContainer">
+        <div className="searchInput">
+          <input
+            type="text"
+            placeholder="Müşteri Adına Göre Arama"
+            value={searchByName}
+            onChange={handleSearchChange}
+          />
         </div>
         <div className="listSize">
           <p>Sayfada Gösterilecek Müşteri Sayısı</p>
@@ -172,35 +181,35 @@ const Customer = () => {
 
       <div className="inputContainer">
         <div className="pageInputsHeader">Müşteri Ekle</div>
-        <Input
+        <InputTextField
           label="Müşteri Adı"
           name="name"
           value={newCustomer.name}
           type="text"
           onChange={customerInputChange}
         />
-        <Input
+        <InputTextField
           label="Müşteri Email"
           name="email"
           value={newCustomer.email}
           type="email"
           onChange={customerInputChange}
         />
-        <Input
+        <InputTextField
           label="Müşteri Adres"
           name="address"
           value={newCustomer.address}
           type="text"
           onChange={customerInputChange}
         />
-        <Input
+        <InputTextField
           label="Müşteri Yaşadığı Şehir"
           name="city"
           value={newCustomer.city}
           type="text"
           onChange={customerInputChange}
         />
-        <Input
+        <InputTextField
           label="Müşteri Telefon"
           name="phone"
           value={newCustomer.phone}

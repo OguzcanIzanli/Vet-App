@@ -14,3 +14,5 @@ export const put = (id: string, data: CustomerType) =>
   instance.put(`/api/v1/customers/${id}`, data);
 
 export const find = (id: string) => instance.get(`/api/v1/customers/${id}`);
+
+export const searchByName = (name: string) => instance.get(`/api/v1/customers/searchByName?name=${name}&pageNumber=0&pageSize=10`)

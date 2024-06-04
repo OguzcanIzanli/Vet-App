@@ -1,4 +1,4 @@
-export interface InputType {
+export interface InputTextFieldType {
   label: string;
   name: string;
   value: string | number;

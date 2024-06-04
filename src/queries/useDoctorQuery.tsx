@@ -43,6 +43,5 @@ export const useDoctorQuery = (page: number, size: number) => {
     addDoctor,
     removeDoctor,
     updateDoctor,
-    // findDoctor,
   };
 };

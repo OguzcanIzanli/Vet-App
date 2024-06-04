@@ -1,7 +1,13 @@
 import { TextField, Box } from "@mui/material";
-import { InputType } from "./types";
+import { InputTextFieldType } from "./types";
 
-const CustomerInput = ({ label, name, value, type, onChange }: InputType) => (
+const InputTextField = ({
+  label,
+  name,
+  value,
+  type,
+  onChange,
+}: InputTextFieldType) => (
   <Box
     component="form"
     sx={{
@@ -22,4 +28,4 @@ const CustomerInput = ({ label, name, value, type, onChange }: InputType) => (
   </Box>
 );
 
-export default CustomerInput;
+export default InputTextField;
