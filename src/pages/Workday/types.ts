@@ -18,7 +18,7 @@ export interface WorkdayDoctorType {
   doctor: DoctorType;
 }
 
-export const initialWorkdayDoctorType = {
+export const initialWorkdayDoctor: WorkdayDoctorType = {
   id: "",
   workDay: "",
   doctor: initialDoctor,

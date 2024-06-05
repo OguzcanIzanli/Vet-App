@@ -31,7 +31,7 @@ export const useWorkdayQuery = () => {
   });
 
   const updateWorkday = useMutation({
-    mutationFn: (updatedWorkday: { id: number; data: WorkdayType }) =>
+    mutationFn: (updatedWorkday: { id: string; data: WorkdayType }) =>
       backend.workdayService.put(updatedWorkday.id, updatedWorkday.data),
     onSuccess: () => {
       queryClient.invalidateQueries(["workdays"]);

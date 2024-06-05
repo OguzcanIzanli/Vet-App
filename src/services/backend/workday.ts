@@ -10,7 +10,7 @@ export const post = (data: WorkdayType) =>
 export const remove = (id: string) =>
   instance.delete(`/api/v1/available-dates/${id}`);
 
-export const put = (id: number, data: WorkdayType) =>
+export const put = (id: string, data: WorkdayType) =>
   instance.put(`/api/v1/available-dates/${id}`, data);
 
 export const find = (id: string) =>

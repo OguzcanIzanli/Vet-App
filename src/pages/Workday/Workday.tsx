@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useDoctorQuery } from "../../queries/useDoctorQuery";
 import { useWorkdayQuery } from "../../queries/useWorkdayQuery";
 import { DoctorType } from "../Doctor/types";
-import { WorkdayDoctorType, initialWorkday } from "../Workday/types";
+import {
+  WorkdayDoctorType,
+  initialWorkday,
+  initialWorkdayDoctor,
+} from "../Workday/types";
 import IconSend from "../../assets/icons/IconSend";
 import IconSave from "../../assets/icons/IconSave";
 import IconDelete from "../../assets/icons/IconDelete";
@@ -33,7 +37,7 @@ const Workday = () => {
   const doctors = listDoctors.data?.data.content;
   const workdays = listWorkdays.data?.data.content;
 
-  const [updatedWorkday, setUpdatedWorkday] = useState(initialWorkday);
+  const [updatedWorkday, setUpdatedWorkday] = useState(initialWorkdayDoctor);
 
   // ADD
   const doctorSelectionChange = (e: SelectChangeEvent<string>) => {
@@ -56,6 +60,7 @@ const Workday = () => {
 
   const handleDateAdd = () => {
     addWorkday.mutate(newDate);
+    console.log(newDate);
     setNewDate(initialWorkday);
     setDoctorAvailableDates([]);
   };
@@ -71,24 +76,33 @@ const Workday = () => {
   };
 
   // UPDATE
-  const handleEdit = (item: DoctorType) => {
+  const handleEdit = (item: WorkdayDoctorType) => {
     setUpdatedWorkday(item);
   };
 
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (updatedWorkday) {
-      const { name, value } = e.target;
+      const { value } = e.target;
       setUpdatedWorkday({
         ...updatedWorkday,
-        [name]: value,
+        workDay: value,
       });
     }
+    console.log(updatedWorkday);
   };
 
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
     const { id } = e.currentTarget;
-    updateWorkday.mutate({ id, data: updatedWorkday });
-    setUpdatedWorkday(initialWorkday);
+
+    const data = {
+      workdate: updatedWorkday.workDay,
+      doctorId: Number(updatedWorkday.doctor.id),
+    };
+
+    console.log(id);
+    console.log(data);
+    updateWorkday.mutate({ id, data });
+    setUpdatedWorkday(initialWorkdayDoctor);
   };
 
   return (
@@ -142,7 +156,7 @@ const Workday = () => {
                     <input
                       type="date"
                       name="name"
-                      value={updatedWorkday.workDate}
+                      value={updatedWorkday.workDay}
                       onChange={handleFieldChange}
                     />
                   </td>
