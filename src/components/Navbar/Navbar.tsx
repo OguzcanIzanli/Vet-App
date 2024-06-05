@@ -1,7 +1,7 @@
 import "./Navbar.styles.css";
 import { Link } from "react-router-dom";
 import IconPaw from "../../assets/icons/IconPaw";
-import IconMenu from "../../assets/icons/IconMenu";
+import IconPlus from "../../assets/icons/IconPlus";
 import IconClose from "../../assets/icons/IconClose";
 import { useState } from "react";
 
@@ -31,7 +31,7 @@ const Navbar = () => {
         </div>
 
         <div className="dropdown" onClick={() => setDropdown(!dropdown)}>
-          {dropdown ? <IconClose /> : <IconMenu />}
+          {dropdown ? <IconClose /> : <IconPlus />}
         </div>
       </div>
     </div>

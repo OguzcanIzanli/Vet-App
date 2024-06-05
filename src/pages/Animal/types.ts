@@ -8,17 +8,18 @@ interface Customer {
 }
 
 export interface AnimalType {
-  id?: number;
+  id?: string;
   name: string;
   species: string;
   breed: string;
   gender: string;
   colour: string;
-  dateOfBirth: string;
+  dateOfBirth: string | undefined;
   customer: Customer;
 }
 
 export const initialAnimal: AnimalType = {
+  id: "",
   name: "",
   species: "",
   breed: "",

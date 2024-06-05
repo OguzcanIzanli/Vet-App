@@ -1,4 +1,4 @@
-// import * as animalService from "./animal";
+import * as animalService from "./animal";
 // import * as appointmentService from "./appointment"
 import * as customerService from "./customer";
 import * as doctorService from "./doctor";
@@ -10,4 +10,5 @@ export default {
   customerService,
   doctorService,
   workdayService,
+  animalService,
 };

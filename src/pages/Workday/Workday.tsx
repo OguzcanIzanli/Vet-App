@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { useDoctorQuery } from "../../queries/useDoctorQuery";
 import { useWorkdayQuery } from "../../queries/useWorkdayQuery";
 import { DoctorType } from "../Doctor/types";
@@ -60,7 +60,6 @@ const Workday = () => {
 
   const handleDateAdd = () => {
     addWorkday.mutate(newDate);
-    console.log(newDate);
     setNewDate(initialWorkday);
     setDoctorAvailableDates([]);
   };
@@ -88,19 +87,15 @@ const Workday = () => {
         workDay: value,
       });
     }
-    console.log(updatedWorkday);
   };
-
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
     const { id } = e.currentTarget;
 
     const data = {
-      workdate: updatedWorkday.workDay,
+      workDate: updatedWorkday.workDay,
       doctorId: Number(updatedWorkday.doctor.id),
     };
 
-    console.log(id);
-    console.log(data);
     updateWorkday.mutate({ id, data });
     setUpdatedWorkday(initialWorkdayDoctor);
   };

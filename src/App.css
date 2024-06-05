@@ -62,8 +62,15 @@ tr:nth-child(even) {
 }
 
 td input {
-  width: auto;
   font-size: 1.1rem;
+  background-color: var(--color-4);
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+}
+
+td select {
+  font-size: 1rem;
   background-color: var(--color-4);
   border: none;
   border-radius: 8px;
@@ -170,6 +177,11 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.searchContainer {
+  display: flex;
+  gap: 16px;
 }
 
 .searchInput {
