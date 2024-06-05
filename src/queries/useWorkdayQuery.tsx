@@ -23,25 +23,25 @@ export const useWorkdayQuery = () => {
     },
   });
 
-  // const removeWorkday = useMutation({
-  //   mutationFn: (id: number) => backend.workdayService.remove(id),
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries(["workdays"]);
-  //   },
-  // });
+  const removeWorkday = useMutation({
+    mutationFn: (id: string) => backend.workdayService.remove(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["workdays"]);
+    },
+  });
 
-  // const updateWorkday = useMutation({
-  //   mutationFn: (updatedWorkday: { id: number; data: WorkdayType }) =>
-  //     backend.workdayService.put(updatedWorkday.id, updatedWorkday.data),
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries(["workdays"]);
-  //   },
-  // });
+  const updateWorkday = useMutation({
+    mutationFn: (updatedWorkday: { id: number; data: WorkdayType }) =>
+      backend.workdayService.put(updatedWorkday.id, updatedWorkday.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["workdays"]);
+    },
+  });
 
   return {
     listWorkdays,
     addWorkday,
-    // removeWorkday,
-    // updateWorkday,
+    removeWorkday,
+    updateWorkday,
   };
 };

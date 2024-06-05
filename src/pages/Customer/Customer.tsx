@@ -82,7 +82,7 @@ const Customer = () => {
           />
         </div>
         <div className="listSize">
-          <p>Sayfada Gösterilecek Müşteri Sayısı</p>
+          <p>Tabloda Gösterilecek Müşteri Sayısı</p>
           <select value={size} onChange={handleSizeChange}>
             <option value={10}>10</option>
             <option value={20}>20</option>

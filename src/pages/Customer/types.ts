@@ -8,6 +8,7 @@ export interface CustomerType {
 }
 
 export const initialCustomer: CustomerType = {
+  id: "",
   address: "",
   city: "",
   email: "",

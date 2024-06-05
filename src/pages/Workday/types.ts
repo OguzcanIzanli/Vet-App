@@ -1,3 +1,5 @@
+import { DoctorType, initialDoctor } from "../Doctor/types";
+
 export interface WorkdayType {
   id?: string;
   workDate: string | undefined;
@@ -5,6 +7,19 @@ export interface WorkdayType {
 }
 
 export const initialWorkday: WorkdayType = {
+  id: "",
   workDate: "",
-  doctorId: 0,
+  doctorId: -1,
+};
+
+export interface WorkdayDoctorType {
+  id?: string;
+  workDay: string;
+  doctor: DoctorType;
+}
+
+export const initialWorkdayDoctorType = {
+  id: "",
+  workDay: "",
+  doctor: initialDoctor,
 };

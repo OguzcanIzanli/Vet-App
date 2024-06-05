@@ -8,6 +8,7 @@ export interface DoctorType {
 }
 
 export const initialDoctor: DoctorType = {
+  id: "",
   address: "",
   city: "",
   email: "",

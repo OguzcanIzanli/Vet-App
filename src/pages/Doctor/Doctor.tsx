@@ -1,26 +1,12 @@
 import { useState, ChangeEvent, MouseEvent } from "react";
 import { useDoctorQuery } from "../../queries/useDoctorQuery";
-import { useWorkdayQuery } from "../../queries/useWorkdayQuery";
 import { DoctorType, initialDoctor } from "./types";
-import { initialWorkday } from "../Workday/types";
 import IconSend from "../../assets/icons/IconSend";
 import IconDelete from "../../assets/icons/IconDelete";
 import IconSave from "../../assets/icons/IconSave";
 import Pagination from "../../components/Pagination";
-// import InputSelect from "../../components/InputSelect";
 import InputTextField from "../../components/InputTextField";
-
-import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-
-import { Dayjs } from "dayjs";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import Workday from "../Workday";
 
 const Doctor = () => {
   const [page, setPage] = useState(0);
@@ -31,10 +17,7 @@ const Doctor = () => {
     size
   );
 
-  const { addWorkday } = useWorkdayQuery();
-
   const [newDoctor, setNewDoctor] = useState(initialDoctor);
-  const [newDate, setNewDate] = useState(initialWorkday);
   const [updatedDoctor, setUpdatedDoctor] = useState(initialDoctor);
 
   const doctors = listDoctors.data?.data.content;
@@ -42,7 +25,7 @@ const Doctor = () => {
 
   // REMOVE
   const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.id;
+    const { id } = e.currentTarget;
     removeDoctor.mutate(id);
   };
 
@@ -84,25 +67,6 @@ const Doctor = () => {
     setSize(Number(value));
   };
 
-  // DOCTOR SELECTION AND DATE SELECTION
-
-  const doctorSelectionChange = (e: SelectChangeEvent<string>) => {
-    setNewDate({ ...newDate, doctorId: Number(e.target.value) });
-  };
-
-  const dateSelectionChange = (e: Dayjs | null) => {
-    setNewDate({
-      ...newDate,
-      workDate: e?.format().slice(0, e?.format().indexOf("T")),
-    });
-    console.log(newDate);
-  };
-
-  const handleDateAdd = () => {
-    addWorkday.mutate(newDate);
-    setNewDate(initialWorkday);
-  };
-
   return (
     <>
       <div className="pageHeader">Doktor Yönetimi</div>
@@ -111,7 +75,7 @@ const Doctor = () => {
       <div className="filterContainer">
         <div className="searchInput"></div>
         <div className="listSize">
-          <p>Sayfada Gösterilecek Doktor Sayısı</p>
+          <p>Tabloda Gösterilecek Doktor Sayısı</p>
           <select value={size} onChange={handleSizeChange}>
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -247,44 +211,10 @@ const Doctor = () => {
             onChange={doctorInputChange}
           />
           <button className="addBtn" onClick={handleDoctorAdd}>
-            Ekle <IconSend />
+            Doktor Ekle <IconSend />
           </button>
         </div>
-        <div className="inputDoctorDateContainer">
-          <div className="pageInputsHeader">Doktor İçin Uygun Tarih Ekle</div>
-          <Box sx={{ minWidth: 120 }}>
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">
-                Doktor Seçiniz
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={newDate?.doctorId.toString() || ""}
-                label="Doktor Seçiniz"
-                onChange={doctorSelectionChange}
-              >
-                {doctors?.map((item: DoctorType) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={["DatePicker"]}>
-              <DatePicker
-                value={null}
-                onChange={(e) => dateSelectionChange(e)}
-              />
-            </DemoContainer>
-          </LocalizationProvider>
-
-          <button className="addBtn" onClick={handleDateAdd}>
-            Ekle <IconSend />
-          </button>
-        </div>
+        <Workday />
       </div>
     </>
   );
