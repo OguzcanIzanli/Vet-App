@@ -71,7 +71,7 @@ const Animal = () => {
     const selectedCustomer = customers.find(
       (item: { id: number }) => item.id === Number(e.target.value)
     );
-    setNewAnimal({ ...newAnimal, customer: selectedCustomer[0] });
+    setNewAnimal({ ...newAnimal, customer: selectedCustomer });
   };
 
   // UPDATE

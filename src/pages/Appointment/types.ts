@@ -3,13 +3,12 @@ import { DoctorType, initialDoctor } from "../Doctor/types";
 
 export interface AppointmentType {
   id?: string;
-  appointmentDate: string;
+  appointmentDate: string | undefined;
   doctor: DoctorType;
   animal: AnimalType;
 }
 
 export const initialAppointment: AppointmentType = {
-  id: "",
   appointmentDate: "",
   doctor: initialDoctor,
   animal: initialAnimal,
