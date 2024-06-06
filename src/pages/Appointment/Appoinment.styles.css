@@ -1,0 +1,33 @@
+.doctorAppointmentContainer {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 0 8px;
+}
+
+.doctorAppointmentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 345px;
+  padding: 4px 4px;
+  border-radius: 8px;
+  border: 2px solid var(--color-1);
+}
+
+.availableDate {
+  font-size: 1.6rem;
+  font-weight: 600;
+  min-width: 152px;
+}
+
+.doctorAppointmentItem .MuiStack-root {
+  padding: 0;
+  width: 145px;
+  overflow: hidden;
+}
+
+.doctorAppointmentItem .MuiStack-root div {
+  width: 145px;
+}

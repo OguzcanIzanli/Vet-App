@@ -19,6 +19,8 @@ import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 import { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -46,9 +48,11 @@ const Workday = () => {
         item.doctor.id === Number(e.target.value)
     );
     setDoctorAvailableDates(doctorDates);
-
+    console.log(doctorDates);
     setNewDate({ ...newDate, doctorId: Number(e.target.value) });
   };
+
+  const localDate = new Date().toISOString().split("T")[0];
 
   const dateSelectionChange = (e: Dayjs | null) => {
     const formattedDate = e?.format().slice(0, e?.format().indexOf("T"));
@@ -123,7 +127,11 @@ const Workday = () => {
       </Box>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DemoContainer components={["DatePicker"]}>
-          <DatePicker value={null} onChange={dateSelectionChange} />
+          <DatePicker
+            value={null}
+            onChange={dateSelectionChange}
+            minDate={dayjs(localDate)}
+          />
         </DemoContainer>
       </LocalizationProvider>
 
