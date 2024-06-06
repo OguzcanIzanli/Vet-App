@@ -48,7 +48,7 @@ const Workday = () => {
         item.doctor.id === Number(e.target.value)
     );
     setDoctorAvailableDates(doctorDates);
-    console.log(doctorDates);
+
     setNewDate({ ...newDate, doctorId: Number(e.target.value) });
   };
 
@@ -58,7 +58,7 @@ const Workday = () => {
     const formattedDate = e?.format().slice(0, e?.format().indexOf("T"));
     setNewDate({
       ...newDate,
-      workDate: formattedDate,
+      workDay: formattedDate,
     });
   };
 
@@ -96,7 +96,7 @@ const Workday = () => {
     const { id } = e.currentTarget;
 
     const data = {
-      workDate: updatedWorkday.workDay,
+      workDay: updatedWorkday.workDay,
       doctorId: Number(updatedWorkday.doctor.id),
     };
 

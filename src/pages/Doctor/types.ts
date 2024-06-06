@@ -1,5 +1,5 @@
 export interface DoctorType {
-  id?: string;
+  id?: number;
   address: string;
   city: string;
   email: string;
@@ -8,7 +8,6 @@ export interface DoctorType {
 }
 
 export const initialDoctor: DoctorType = {
-  id: "",
   address: "",
   city: "",
   email: "",

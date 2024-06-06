@@ -5,15 +5,28 @@ import { AppointmentType } from "../pages/Appointment/types";
 export const useAppointmentQuery = (
   page: number,
   size: number,
-  searchByName: string
+  searchByDoctorAndDateRange: { id: string; start: string; end: string },
+  searchByAnimalAndDateRange: { id: string; start: string; end: string }
 ) => {
   const queryClient = useQueryClient();
 
   const listAppointments = useQuery({
-    queryKey: ["appointments", page, size, searchByName],
+    queryKey: [
+      "appointments",
+      page,
+      size,
+      searchByDoctorAndDateRange,
+      searchByAnimalAndDateRange,
+    ],
     queryFn: () =>
-      searchByName
-        ? backend.appointmentService.searchByName(searchByName)
+      searchByAnimalAndDateRange.id !== ""
+        ? backend.appointmentService.searchByAnimalAndDateRange(
+            searchByAnimalAndDateRange
+          )
+        : searchByDoctorAndDateRange.id !== ""
+        ? backend.appointmentService.searchByDoctorAndDateRange(
+            searchByDoctorAndDateRange
+          )
         : backend.appointmentService.list(page, size),
   });
 
@@ -26,14 +39,26 @@ export const useAppointmentQuery = (
     mutationFn: (newAppointment: AppointmentType) =>
       backend.appointmentService.post(newAppointment),
     onSuccess: () => {
-      queryClient.invalidateQueries(["appointments", page, size, searchByName]);
+      queryClient.invalidateQueries([
+        "appointments",
+        page,
+        size,
+        searchByDoctorAndDateRange,
+        searchByAnimalAndDateRange,
+      ]);
     },
   });
 
   const removeAppointment = useMutation({
     mutationFn: (id: string) => backend.appointmentService.remove(id),
     onSuccess: () => {
-      queryClient.invalidateQueries(["appointments", page, size, searchByName]);
+      queryClient.invalidateQueries([
+        "appointments",
+        page,
+        size,
+        searchByDoctorAndDateRange,
+        searchByAnimalAndDateRange,
+      ]);
     },
   });
 
@@ -44,7 +69,13 @@ export const useAppointmentQuery = (
         updatedAppointment.data
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries(["appointments", page, size, searchByName]);
+      queryClient.invalidateQueries([
+        "appointments",
+        page,
+        size,
+        searchByDoctorAndDateRange,
+        searchByAnimalAndDateRange,
+      ]);
     },
   });
 

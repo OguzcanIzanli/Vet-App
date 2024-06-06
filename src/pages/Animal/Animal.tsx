@@ -21,6 +21,8 @@ import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { CustomerType } from "../Customer/types";
 
+import dayjs from "dayjs";
+
 const Animal = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
@@ -41,6 +43,7 @@ const Animal = () => {
   const animals = listAnimals.data?.data.content;
   const totalPages = listAnimals.data?.data.totalPages;
   const customers = listCustomers.data?.data.content;
+  const localDate = new Date().toISOString().split("T")[0];
 
   // REMOVE
   const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
@@ -232,7 +235,7 @@ const Animal = () => {
                 <td>
                   <button
                     className="iconSave"
-                    id={item.id}
+                    id={item.id?.toString()}
                     onClick={handleUpdate}
                   >
                     <IconSave />
@@ -251,7 +254,7 @@ const Animal = () => {
                 <td>
                   <button
                     className="iconDelete"
-                    id={item.id}
+                    id={item.id?.toString()}
                     onClick={handleRemove}
                   >
                     <IconDelete />
@@ -306,6 +309,7 @@ const Animal = () => {
             <DatePicker
               value={null}
               label="Hayvan Doğum Tarihi"
+              maxDate={dayjs(localDate)}
               onChange={dateSelectionChange}
             />
           </DemoContainer>

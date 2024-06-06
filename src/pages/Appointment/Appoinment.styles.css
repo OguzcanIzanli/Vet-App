@@ -1,33 +1,14 @@
-.doctorAppointmentContainer {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 0 8px;
-}
-
-.doctorAppointmentItem {
+.dateSelectionContainer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  max-width: 345px;
-  padding: 4px 4px;
-  border-radius: 8px;
-  border: 2px solid var(--color-1);
+  gap: 16px;
 }
 
-.availableDate {
-  font-size: 1.6rem;
-  font-weight: 600;
-  min-width: 152px;
+.daySelectInput,
+.hourSelectInput {
+  width: 100%;
 }
 
-.doctorAppointmentItem .MuiStack-root {
-  padding: 0;
-  width: 145px;
-  overflow: hidden;
-}
-
-.doctorAppointmentItem .MuiStack-root div {
-  width: 145px;
+.daySelectInput .MuiBox-root {
+  margin-top: 8px;
 }

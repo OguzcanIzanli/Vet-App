@@ -1,62 +1,87 @@
 import "./Appoinment.styles.css";
 import { useState, ChangeEvent, MouseEvent } from "react";
-import { useAppointmentQuery } from "../../queries/useAppointmentQuery";
-import { AppointmentType, initialAppointment } from "./types";
+
+// Icons
 import IconSend from "../../assets/icons/IconSend";
 import IconDelete from "../../assets/icons/IconDelete";
 import IconSave from "../../assets/icons/IconSave";
+
+// Components
 import Pagination from "../../components/Pagination";
+
+//Queries
 import { useAnimalQuery } from "../../queries/useAnimalQuery";
 import { useCustomerQuery } from "../../queries/useCustomerQuery";
 import { useDoctorQuery } from "../../queries/useDoctorQuery";
 import { useWorkdayQuery } from "../../queries/useWorkdayQuery";
+import { useAppointmentQuery } from "../../queries/useAppointmentQuery";
 
-import { Dayjs } from "dayjs";
-import dayjs from "dayjs";
+//Types
+import {
+  AppointmentType,
+  DateState,
+  initialAppointment,
+  initialSearchByDoctorDate,
+} from "./types";
+import { CustomerType } from "../Customer/types";
+import { AnimalType } from "../Animal/types";
+import { DoctorType } from "../Doctor/types";
+import { WorkdayDoctorType } from "../Workday/types";
 
+// Mui Select Input
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { CustomerType } from "../Customer/types";
 
-// import dayjs, { Dayjs } from "dayjs";
-// import Stack from "@mui/material/Stack";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
+// Mui Time Input
+import dayjs, { Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
-import { AnimalType } from "../Animal/types";
-import { DoctorType } from "../Doctor/types";
-import { WorkdayDoctorType } from "../Workday/types";
-
 const Appointment = () => {
+  // States
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [newAppointment, setNewAppointment] = useState(initialAppointment);
   const [updatedAppointment, setUpdatedAppointment] =
     useState(initialAppointment);
-  const [searchByName, setSearchByName] = useState("");
+
+  const [searchByDoctorAndDateRange, setSearchByDoctorAndDateRange] = useState(
+    initialSearchByDoctorDate
+  );
+  const [searchByDate, setSearchByDate] = useState(initialSearchByDoctorDate);
+
+  const [searchByAnimalAndDateRange, setSearchByAnimalAndDateRange] = useState(
+    initialSearchByDoctorDate
+  );
+
   const [filteredAnimals, setFilteredAnimals] = useState<AnimalType[]>();
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
-
   const [doctorAvailableDates, setDoctorAvailableDates] = useState<
     WorkdayDoctorType[]
   >([]);
+  const [date, setDate] = useState<DateState>({
+    dateInput: "",
+    dateUpdate: "",
+  });
 
+  // Queries
   const {
     listAppointments,
     addAppointment,
     removeAppointment,
     updateAppointment,
-  } = useAppointmentQuery(page, size, searchByName);
-
-  const { listAnimals } = useAnimalQuery(page, 99, searchByName, "");
+  } = useAppointmentQuery(
+    page,
+    size,
+    searchByDoctorAndDateRange,
+    searchByAnimalAndDateRange
+  );
+  const { listAnimals } = useAnimalQuery(page, 99, "", "");
   const { listCustomers } = useCustomerQuery(page, 99, "");
   const { listDoctors } = useDoctorQuery(page, 99);
   const { listWorkdays } = useWorkdayQuery();
@@ -66,86 +91,151 @@ const Appointment = () => {
   const customers = listCustomers.data?.data.content;
   const doctors = listDoctors.data?.data.content;
   const workdays = listWorkdays.data?.data.content;
-
   const totalPages = listAppointments.data?.data.totalPages;
 
-  // REMOVE
-  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.id;
-    removeAppointment.mutate(id);
-  };
-
   // ADD
+  // Add Button
   const handleAdd = () => {
     addAppointment.mutate(newAppointment);
-    console.log(newAppointment);
     setNewAppointment(initialAppointment);
+    setDoctorAvailableDates([]);
+    setSelectedCustomerId("");
   };
 
-  const hourSelectionChange = (e: Dayjs | null) => {
-    console.log(e?.format());
-    // setNewAppointment({
-    //   ...newAppointment,
-    //   appointmentDate: e?.format(),
-    // });
-  };
-
+  // Doctor Select Input
   const doctorSelectionChange = (e: SelectChangeEvent<string>) => {
     const selectedDoctor = doctors.find(
-      (item: { id: number }) => item.id === Number(e.target.value)
+      (item: DoctorType) => item.id === +e.target.value
     );
     setNewAppointment({ ...newAppointment, doctor: selectedDoctor });
 
-    const selectedWorkdays = workdays.filter(
-      (item: { doctor: DoctorType; id: number }) =>
-        item.doctor.id === e.target.value
+    setDoctorAvailableDates(() =>
+      workdays.filter(
+        (item: { doctor: DoctorType; id: number }) =>
+          item.doctor.id === +e.target.value
+      )
     );
-
-    setDoctorAvailableDates(selectedWorkdays);
   };
 
+  // Day Select Input
+  const dateSelectionChange = (e: SelectChangeEvent<string>) => {
+    const { value } = e.target;
+    setDate({ ...date, dateInput: value });
+    setNewAppointment({
+      ...newAppointment,
+      appointmentDate:
+        value + "T" + newAppointment.appointmentDate?.split("T")[1],
+    });
+  };
+
+  // Hour Select Input
+  const hourSelectionChange = (e: Dayjs | null) => {
+    const hour = e?.format().split("T")[1].slice(0, 5);
+    setNewAppointment({
+      ...newAppointment,
+      appointmentDate: date.dateInput + "T" + hour,
+    });
+  };
+
+  // Customer Select Input
   const customerSelectionChange = (e: SelectChangeEvent<string>) => {
     setFilteredAnimals(() =>
-      animals.filter((item: AnimalType) => item.customer.id === e.target.value)
+      animals.filter((item: AnimalType) => item.customer.id === +e.target.value)
     );
     setSelectedCustomerId(e.target.value);
   };
 
+  // Animal Select Input
   const animalSelectionChange = (e: SelectChangeEvent<string>) => {
     const selectedAnimal = animals.find(
-      (item: { id: number }) => item.id === Number(e.target.value)
+      (item: AnimalType) => item.id === +e.target.value
     );
     setNewAppointment({ ...newAppointment, animal: selectedAnimal });
+  };
+
+  // REMOVE
+  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
+    const { id } = e.currentTarget;
+    removeAppointment.mutate(id);
   };
 
   // UPDATE
   const handleEdit = (item: AppointmentType) => {
     setUpdatedAppointment(item);
+    setDate({ ...date, dateUpdate: item.appointmentDate?.split("T")[0] });
+
+    setDoctorAvailableDates(() =>
+      workdays.filter(
+        (workday: { doctor: DoctorType; id: number }) =>
+          workday.doctor.id === item.doctor.id
+      )
+    );
+
+    setFilteredAnimals(() =>
+      animals.filter(
+        (animal: AnimalType) => animal.customer.id === item.animal.customer.id
+      )
+    );
   };
 
-  const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const handleDayChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    setDate({ ...date, dateUpdate: value });
+    const updatedAppointmentDate =
+      value +
+      "T" +
+      updatedAppointment.appointmentDate?.split("T")[1].slice(0, 5);
+
     setUpdatedAppointment({
       ...updatedAppointment,
-      [name]: value,
+      appointmentDate: updatedAppointmentDate,
+    });
+  };
+
+  const handleHourChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const updatedTime = e.target.value;
+    const updatedDate = updatedAppointment.appointmentDate?.split("T")[0];
+    setUpdatedAppointment({
+      ...updatedAppointment,
+      appointmentDate: updatedDate + "T" + updatedTime,
     });
   };
 
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
     const id = e.currentTarget.id;
+    console.log(updatedAppointment);
     updateAppointment.mutate({ id, data: updatedAppointment });
     setUpdatedAppointment(initialAppointment);
   };
 
   // DATA SIZE ON PAGE
   const handleSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSize(Number(e.target.value));
+    setSize(+e.target.value);
   };
 
   // SEARCH
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setSearchByName(value);
+  // Search By Doctor And Animal, And Date Range
+  const searchAreaDoctors: string[] = Array.from(
+    new Set(doctors?.map((doctor: DoctorType) => `${doctor.id}-${doctor.name}`))
+  );
+
+  const searchAreaAnimals: string[] = Array.from(
+    new Set(animals?.map((animal: AnimalType) => `${animal.id}-${animal.name}`))
+  );
+
+  const handleSearchDateChange = (
+    e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setSearchByDate((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSearchBtn = (name: string) => {
+    if (name === "animal") {
+      setSearchByAnimalAndDateRange(searchByDate);
+    } else {
+      setSearchByDoctorAndDateRange(searchByDate);
+    }
   };
 
   return (
@@ -154,13 +244,41 @@ const Appointment = () => {
       <div className="pageListHeader">Randevu Listesi</div>
 
       <div className="filterContainer">
-        <div className="searchInput">
-          <input
-            type="text"
-            placeholder="Randevu Adına Göre Arama"
-            value={searchByName}
-            onChange={handleSearchChange}
-          />
+        <div className="searchContainer">
+          <div className="searchInput">
+            <select name="id" id="" onChange={handleSearchDateChange}>
+              <option value="">Tümünü Göster</option>
+              {searchAreaDoctors.map((item: string) => {
+                const [id, name] = item.split("-");
+                return (
+                  <option value={id} key={id}>
+                    {name}
+                  </option>
+                );
+              })}
+            </select>
+            <button onClick={() => handleSearchBtn("doctor")}>Ara</button>
+          </div>
+
+          <div className="searchInput">
+            <select name="id" id="" onChange={handleSearchDateChange}>
+              <option value="">Tümünü Göster</option>
+              {searchAreaAnimals.map((item: string) => {
+                const [id, name] = item.split("-");
+                return (
+                  <option value={id} key={id}>
+                    {name}
+                  </option>
+                );
+              })}
+            </select>
+            <button onClick={() => handleSearchBtn("animal")}>Ara</button>
+          </div>
+          <div>
+            <input type="date" name="start" onChange={handleSearchDateChange} />
+            -
+            <input type="date" name="end" onChange={handleSearchDateChange} />
+          </div>
         </div>
         <div className="listSize">
           <p>Tabloda Gösterilecek Randevu Sayısı</p>
@@ -175,10 +293,13 @@ const Appointment = () => {
       <table id="table">
         <thead>
           <tr>
+            <th>Doktor</th>
             <th>Randevu Tarihi</th>
+            <th>Randevu Saati</th>
             <th>Hayvan</th>
             <th>Müşteri</th>
-
+            <th>Müşteri No</th>
+            <th>Doktor No</th>
             <th>İşlemler</th>
           </tr>
         </thead>
@@ -186,44 +307,49 @@ const Appointment = () => {
           {appointments?.map((item: AppointmentType) =>
             updatedAppointment?.id === item.id ? (
               <tr key={item.id}>
-                <td>
-                  <input
-                    name="dateOfBirth"
-                    value={updatedAppointment.appointmentDate}
-                    type="datetime-local"
-                    onChange={handleFieldChange}
-                  />
-                </td>
+                <td>{item.doctor.name}</td>
+
                 <td>
                   <select
-                    value={updatedAppointment.animal.id}
-                    name="animal"
-                    // onChange={(e) => handleSelectChange(e.target.value)}
+                    value={date.dateUpdate}
+                    name="day"
+                    onChange={handleDayChange}
                   >
-                    {appointments.map((item: AppointmentType) => (
-                      <option key={item.id} value={item.id}>
-                        {item.animal.name}
+                    {doctorAvailableDates?.map((item: WorkdayDoctorType) => (
+                      <option value={item.workDay} key={item.id}>
+                        {item.workDay}
                       </option>
                     ))}
                   </select>
                 </td>
                 <td>
                   <select
-                    value={updatedAppointment.animal.customer.id}
-                    name="customer"
-                    // onChange={(e) => handleSelectChange(e.target.value)}
+                    name="hour"
+                    value={updatedAppointment.appointmentDate
+                      ?.split("T")[1]
+                      .slice(0, 5)}
+                    onChange={handleHourChange}
                   >
-                    {appointments.map((item: AppointmentType) => (
-                      <option key={item.id} value={item.id}>
-                        {item.animal.customer.name}
-                      </option>
-                    ))}
+                    <option value="08:00">08:00</option>
+                    <option value="09:00">09:00</option>
+                    <option value="10:00">10:00</option>
+                    <option value="11:00">11:00</option>
+                    <option value="12:00">12:00</option>
+                    <option value="13:00">13:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="17:00">17:00</option>
                   </select>
                 </td>
+                <td>{item.animal.name}</td>
+                <td>{item.animal.customer.name}</td>
+                <td>{item.animal.customer.phone}</td>
+                <td>{item.doctor.phone}</td>
                 <td>
                   <button
                     className="iconSave"
-                    id={item.id}
+                    id={item.id?.toString()}
                     onClick={handleUpdate}
                   >
                     <IconSave />
@@ -232,15 +358,22 @@ const Appointment = () => {
               </tr>
             ) : (
               <tr key={item.id}>
-                <td onClick={() => handleEdit(item)}>{item.appointmentDate}</td>
-                <td onClick={() => handleEdit(item)}>{item.animal.name}</td>
+                <td>{item.doctor.name}</td>
+
                 <td onClick={() => handleEdit(item)}>
-                  {item.animal.customer.name}
+                  {item.appointmentDate?.split("T")[0]}
                 </td>
+                <td onClick={() => handleEdit(item)}>
+                  {item.appointmentDate?.split("T")[1].slice(0, 5)}
+                </td>
+                <td>{item.animal.name}</td>
+                <td>{item.animal.customer.name}</td>
+                <td>{item.animal.customer.phone}</td>
+                <td>{item.doctor.phone}</td>
                 <td>
                   <button
                     className="iconDelete"
-                    id={item.id}
+                    id={item.id?.toString()}
                     onClick={handleRemove}
                   >
                     <IconDelete />
@@ -276,10 +409,38 @@ const Appointment = () => {
           </FormControl>
         </Box>
 
-        <div className="doctorAppointmentContainer">
-          {doctorAvailableDates?.map((item: WorkdayDoctorType) => (
-            <div key={item.id} className="doctorAppointmentItem">
-              <div className="availableDate">{item.workDay}</div>
+        <div className="dateSelectionContainer">
+          <div className="daySelectInput">
+            <Box sx={{ minWidth: 120 }}>
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">
+                  Gün Seçiniz
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={date.dateInput || ""}
+                  label="Gün Seçiniz"
+                  onChange={dateSelectionChange}
+                >
+                  {doctorAvailableDates[0] != null ? (
+                    doctorAvailableDates?.map((item: WorkdayDoctorType) => (
+                      <MenuItem key={item.id} value={item.workDay}>
+                        {item.workDay}
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <div style={{ padding: "0 8px" }}>
+                      Bu Doktora Ait Uygun Randevu Bulunamadı!
+                    </div>
+                  )}
+                </Select>
+              </FormControl>
+            </Box>
+          </div>
+
+          {date.dateInput != "" && (
+            <div className="hourSelectInput">
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer
                   components={["TimePicker", "TimePicker", "TimePicker"]}
@@ -297,7 +458,7 @@ const Appointment = () => {
                 </DemoContainer>
               </LocalizationProvider>
             </div>
-          ))}
+          )}
         </div>
 
         <Box sx={{ minWidth: 120 }}>
@@ -321,30 +482,34 @@ const Appointment = () => {
           </FormControl>
         </Box>
 
-        <Box sx={{ minWidth: 120 }}>
-          <FormControl fullWidth>
-            <InputLabel id="demo-simple-select-label">
-              Hayvan Seçiniz
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
-              value={newAppointment.animal.id?.toString() || ""}
-              label="Hayvan Seçiniz"
-              onChange={animalSelectionChange}
-            >
-              {filteredAnimals?.length ? (
-                filteredAnimals.map((item: AnimalType) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.name}
-                  </MenuItem>
-                ))
-              ) : (
-                <div>Bu Müşteriye Ait Hayvan Bulunamadı!</div>
-              )}
-            </Select>
-          </FormControl>
-        </Box>
+        {selectedCustomerId && (
+          <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">
+                Hayvan Seçiniz
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={newAppointment.animal.id?.toString() || ""}
+                label="Hayvan Seçiniz"
+                onChange={animalSelectionChange}
+              >
+                {filteredAnimals?.length ? (
+                  filteredAnimals.map((item: AnimalType) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      {item.name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <div style={{ padding: "0 8px" }}>
+                    Bu Müşteriye Ait Hayvan Bulunamadı!
+                  </div>
+                )}
+              </Select>
+            </FormControl>
+          </Box>
+        )}
         <button className="addBtn" onClick={handleAdd}>
           Ekle <IconSend />
         </button>

@@ -142,7 +142,7 @@ const Doctor = () => {
                 <td>
                   <button
                     className="iconSave"
-                    id={item.id}
+                    id={item.id?.toString()}
                     onClick={handleUpdate}
                   >
                     <IconSave />
@@ -159,7 +159,7 @@ const Doctor = () => {
                 <td>
                   <button
                     className="iconDelete"
-                    id={item.id}
+                    id={item.id?.toString()}
                     onClick={handleRemove}
                   >
                     <IconDelete />

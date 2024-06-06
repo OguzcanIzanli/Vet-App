@@ -1,5 +1,5 @@
 export interface CustomerType {
-  id?: string;
+  id?: number;
   address: string;
   city: string;
   email: string;
@@ -8,7 +8,6 @@ export interface CustomerType {
 }
 
 export const initialCustomer: CustomerType = {
-  id: "",
   address: "",
   city: "",
   email: "",

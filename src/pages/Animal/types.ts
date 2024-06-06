@@ -1,5 +1,5 @@
 interface Customer {
-  id?: string;
+  id?: number;
   name: string;
   phone: string;
   email: string;
@@ -8,7 +8,7 @@ interface Customer {
 }
 
 export interface AnimalType {
-  id?: string;
+  id?: number;
   name: string;
   species: string;
   breed: string;
@@ -19,7 +19,6 @@ export interface AnimalType {
 }
 
 export const initialAnimal: AnimalType = {
-  id: "",
   name: "",
   species: "",
   breed: "",
