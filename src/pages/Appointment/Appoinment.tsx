@@ -245,9 +245,9 @@ const Appointment = () => {
 
       <div className="filterContainer">
         <div className="searchContainer">
-          <div className="searchInput">
-            <select name="id" id="" onChange={handleSearchDateChange}>
-              <option value="">Tümünü Göster</option>
+          <div className="searchSelectInput">
+            <select name="id" onChange={handleSearchDateChange}>
+              <option value="">Doktorların Tümü</option>
               {searchAreaDoctors.map((item: string) => {
                 const [id, name] = item.split("-");
                 return (
@@ -257,12 +257,17 @@ const Appointment = () => {
                 );
               })}
             </select>
-            <button onClick={() => handleSearchBtn("doctor")}>Ara</button>
+            <button
+              className="searchSelectInputBtn"
+              onClick={() => handleSearchBtn("doctor")}
+            >
+              Ara
+            </button>
           </div>
 
-          <div className="searchInput">
+          <div className="searchSelectInput">
             <select name="id" id="" onChange={handleSearchDateChange}>
-              <option value="">Tümünü Göster</option>
+              <option value="">Hayvanların Tümü</option>
               {searchAreaAnimals.map((item: string) => {
                 const [id, name] = item.split("-");
                 return (
@@ -272,9 +277,14 @@ const Appointment = () => {
                 );
               })}
             </select>
-            <button onClick={() => handleSearchBtn("animal")}>Ara</button>
+            <button
+              className="searchSelectInputBtn"
+              onClick={() => handleSearchBtn("animal")}
+            >
+              Ara
+            </button>
           </div>
-          <div>
+          <div className="searchDateInput">
             <input type="date" name="start" onChange={handleSearchDateChange} />
             -
             <input type="date" name="end" onChange={handleSearchDateChange} />
