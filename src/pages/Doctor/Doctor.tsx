@@ -7,6 +7,7 @@ import IconSave from "../../assets/icons/IconSave";
 import Pagination from "../../components/Pagination";
 import InputTextField from "../../components/InputTextField";
 import Workday from "../Workday";
+import IconEdit from "../../assets/icons/IconEdit";
 
 const Doctor = () => {
   const [page, setPage] = useState(0);
@@ -151,12 +152,15 @@ const Doctor = () => {
               </tr>
             ) : (
               <tr key={item.id}>
-                <td onClick={() => handleEdit(item)}>{item.name}</td>
-                <td onClick={() => handleEdit(item)}>{item.email}</td>
-                <td onClick={() => handleEdit(item)}>{item.address}</td>
-                <td onClick={() => handleEdit(item)}>{item.city}</td>
-                <td onClick={() => handleEdit(item)}>{item.phone}</td>
-                <td>
+                <td>{item.name}</td>
+                <td>{item.email}</td>
+                <td>{item.address}</td>
+                <td>{item.city}</td>
+                <td>{item.phone}</td>
+                <td className="operationBtns">
+                  <button className="iconEdit" onClick={() => handleEdit(item)}>
+                    <IconEdit />
+                  </button>
                   <button
                     className="iconDelete"
                     id={item.id?.toString()}

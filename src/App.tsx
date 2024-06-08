@@ -7,7 +7,7 @@ import Animal from "./pages/Animal";
 import Doctor from "./pages/Doctor";
 import Appoinment from "./pages/Appointment";
 import Report from "./pages/Report";
-import Vaccine from "./pages/Vaccine";
+import Vaccine from "./pages/Vaccination";
 
 function App() {
   return (

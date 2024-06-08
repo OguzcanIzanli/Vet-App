@@ -22,6 +22,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { CustomerType } from "../Customer/types";
 
 import dayjs from "dayjs";
+import IconEdit from "../../assets/icons/IconEdit";
 
 const Animal = () => {
   const [page, setPage] = useState(0);
@@ -244,14 +245,17 @@ const Animal = () => {
               </tr>
             ) : (
               <tr key={item.id}>
-                <td onClick={() => handleEdit(item)}>{item.name}</td>
-                <td onClick={() => handleEdit(item)}>{item.species}</td>
-                <td onClick={() => handleEdit(item)}>{item.breed}</td>
-                <td onClick={() => handleEdit(item)}>{item.gender}</td>
-                <td onClick={() => handleEdit(item)}>{item.colour}</td>
-                <td onClick={() => handleEdit(item)}>{item.dateOfBirth}</td>
-                <td onClick={() => handleEdit(item)}>{item.customer.name}</td>
-                <td>
+                <td>{item.name}</td>
+                <td>{item.species}</td>
+                <td>{item.breed}</td>
+                <td>{item.gender}</td>
+                <td>{item.colour}</td>
+                <td>{item.dateOfBirth}</td>
+                <td>{item.customer.name}</td>
+                <td className="operationBtns">
+                  <button className="iconEdit" onClick={() => handleEdit(item)}>
+                    <IconEdit />
+                  </button>
                   <button
                     className="iconDelete"
                     id={item.id?.toString()}

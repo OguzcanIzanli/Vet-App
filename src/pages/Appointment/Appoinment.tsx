@@ -41,6 +41,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import IconEdit from "../../assets/icons/IconEdit";
 
 const Appointment = () => {
   // States
@@ -369,18 +370,16 @@ const Appointment = () => {
             ) : (
               <tr key={item.id}>
                 <td>{item.doctor.name}</td>
-
-                <td onClick={() => handleEdit(item)}>
-                  {item.appointmentDate?.split("T")[0]}
-                </td>
-                <td onClick={() => handleEdit(item)}>
-                  {item.appointmentDate?.split("T")[1].slice(0, 5)}
-                </td>
+                <td>{item.appointmentDate?.split("T")[0]}</td>
+                <td>{item.appointmentDate?.split("T")[1].slice(0, 5)}</td>
                 <td>{item.animal.name}</td>
                 <td>{item.animal.customer.name}</td>
                 <td>{item.animal.customer.phone}</td>
                 <td>{item.doctor.phone}</td>
-                <td>
+                <td className="operationBtns">
+                  <button className="iconEdit" onClick={() => handleEdit(item)}>
+                    <IconEdit />
+                  </button>
                   <button
                     className="iconDelete"
                     id={item.id?.toString()}

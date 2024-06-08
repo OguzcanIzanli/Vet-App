@@ -25,6 +25,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import IconEdit from "../../assets/icons/IconEdit";
 
 const Workday = () => {
   const { listDoctors } = useDoctorQuery(0, 10);
@@ -101,6 +102,7 @@ const Workday = () => {
     };
 
     updateWorkday.mutate({ id, data });
+    console.log("id:", id, "Putted Workday:", data);
     setUpdatedWorkday(initialWorkdayDoctor);
   };
 
@@ -175,12 +177,17 @@ const Workday = () => {
                 </tr>
               ) : (
                 <tr key={item.id}>
-                  <td onClick={() => handleEdit(item)}>{item.workDay}</td>
-                  <td>
+                  <td>{item.workDay}</td>
+                  <td className="operationBtns">
+                    <button
+                      className="iconEdit"
+                      onClick={() => handleEdit(item)}
+                    >
+                      <IconEdit />
+                    </button>
                     <button
                       className="iconDelete"
-                      id={item.id}
-                      name={item.workDay}
+                      id={item.id?.toString()}
                       onClick={handleRemove}
                     >
                       <IconDelete />

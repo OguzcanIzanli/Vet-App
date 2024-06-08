@@ -271,9 +271,14 @@ a {
   background-color: var(--color-2);
 }
 
-/* Delete and Save Icon Buttons  */
+/* Edit, Delete and, Save Icon Buttons  */
+.operationBtns {
+  display: flex;
+}
+
 .iconDelete,
-.iconSave {
+.iconSave,
+.iconEdit {
   display: flex;
   margin: 0 auto;
   font-size: 1.6rem;
@@ -292,6 +297,12 @@ a {
 }
 
 .iconSave:hover {
+  background-color: #f6f5f5;
+  color: #337357;
+  scale: 1.2;
+}
+
+.iconEdit:hover {
   background-color: #f6f5f5;
   color: #337357;
   scale: 1.2;
