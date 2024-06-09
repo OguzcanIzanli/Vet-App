@@ -1,48 +1,74 @@
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, MouseEvent } from "react";
+
+//Queries
 import { useDoctorQuery } from "../../queries/useDoctorQuery";
 import { useWorkdayQuery } from "../../queries/useWorkdayQuery";
+
+// Types
 import { DoctorType } from "../Doctor/types";
 import {
   WorkdayDoctorType,
   initialWorkday,
   initialWorkdayDoctor,
 } from "../Workday/types";
-import IconSend from "../../assets/icons/IconSend";
-import IconSave from "../../assets/icons/IconSave";
-import IconDelete from "../../assets/icons/IconDelete";
-import { MouseEvent } from "react";
 
+// Components
+import OperationButton from "../../components/OperationButton";
+import Toast from "../../components/Toast";
+
+// MUI
+import dayjs from "dayjs";
+import { Dayjs } from "dayjs";
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-
-import { Dayjs } from "dayjs";
-import dayjs from "dayjs";
-
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import IconEdit from "../../assets/icons/IconEdit";
 
 const Workday = () => {
-  const { listDoctors } = useDoctorQuery(0, 10);
-  const { addWorkday, listWorkdays, removeWorkday, updateWorkday } =
-    useWorkdayQuery();
-
+  // States
   const [newDate, setNewDate] = useState(initialWorkday);
   const [doctorAvailableDates, setDoctorAvailableDates] = useState<
     WorkdayDoctorType[]
   >([]);
+  const [updatedWorkday, setUpdatedWorkday] = useState(initialWorkdayDoctor);
+  const localDate = new Date().toISOString().split("T")[0];
+
+  // Queries
+  const {
+    addWorkday,
+    listWorkdays,
+    removeWorkday,
+    updateWorkday,
+    toast,
+    resetToast,
+  } = useWorkdayQuery();
+  const { listDoctors } = useDoctorQuery(0, 10);
 
   const doctors = listDoctors.data?.data.content;
   const workdays = listWorkdays.data?.data.content;
 
-  const [updatedWorkday, setUpdatedWorkday] = useState(initialWorkdayDoctor);
+  // Remove
+  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
+    const { id, name } = e.currentTarget;
+    removeWorkday.mutate(id);
+    const updatedDates = doctorAvailableDates.filter(
+      (date) => date.workDay !== name
+    );
+    setDoctorAvailableDates(updatedDates);
+  };
 
-  // ADD
+  // Add
+  const handleAdd = () => {
+    addWorkday.mutate(newDate);
+    setNewDate(initialWorkday);
+    setDoctorAvailableDates([]);
+  };
+
   const doctorSelectionChange = (e: SelectChangeEvent<string>) => {
     const doctorDates = workdays.filter(
       (item: { doctor: { id: number } }) =>
@@ -53,8 +79,6 @@ const Workday = () => {
     setNewDate({ ...newDate, doctorId: Number(e.target.value) });
   };
 
-  const localDate = new Date().toISOString().split("T")[0];
-
   const dateSelectionChange = (e: Dayjs | null) => {
     const formattedDate = e?.format().slice(0, e?.format().indexOf("T"));
     setNewDate({
@@ -63,23 +87,7 @@ const Workday = () => {
     });
   };
 
-  const handleDateAdd = () => {
-    addWorkday.mutate(newDate);
-    setNewDate(initialWorkday);
-    setDoctorAvailableDates([]);
-  };
-
-  // REMOVE
-  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
-    const { id, name } = e.currentTarget;
-    removeWorkday.mutate(id);
-    const updatedDates = doctorAvailableDates.filter(
-      (date) => date.workDay !== name
-    );
-    setDoctorAvailableDates(updatedDates);
-  };
-
-  // UPDATE
+  // Update
   const handleEdit = (item: WorkdayDoctorType) => {
     setUpdatedWorkday(item);
   };
@@ -93,6 +101,7 @@ const Workday = () => {
       });
     }
   };
+
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
     const { id } = e.currentTarget;
 
@@ -137,9 +146,9 @@ const Workday = () => {
         </DemoContainer>
       </LocalizationProvider>
 
-      <button className="addBtn" onClick={handleDateAdd}>
-        Tarih Ekle <IconSend />
-      </button>
+      <OperationButton className="addBtn" onClick={handleAdd} icon="send">
+        Ekle
+      </OperationButton>
 
       <table id="table">
         <thead>
@@ -166,32 +175,29 @@ const Workday = () => {
                     />
                   </td>
                   <td>
-                    <button
-                      className="iconSave"
-                      id={item.id}
+                    <OperationButton
+                      className="saveBtn"
+                      id={item.id?.toString()}
+                      icon="save"
                       onClick={handleUpdate}
-                    >
-                      <IconSave />
-                    </button>
+                    />
                   </td>
                 </tr>
               ) : (
                 <tr key={item.id}>
                   <td>{item.workDay}</td>
                   <td className="operationBtns">
-                    <button
-                      className="iconEdit"
+                    <OperationButton
+                      className="editBtn"
                       onClick={() => handleEdit(item)}
-                    >
-                      <IconEdit />
-                    </button>
-                    <button
-                      className="iconDelete"
+                      icon="edit"
+                    />
+                    <OperationButton
+                      className="deleteBtn"
                       id={item.id?.toString()}
+                      icon="delete"
                       onClick={handleRemove}
-                    >
-                      <IconDelete />
-                    </button>
+                    />
                   </td>
                 </tr>
               )
@@ -199,6 +205,9 @@ const Workday = () => {
           )}
         </tbody>
       </table>
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={resetToast} />
+      )}
     </div>
   );
 };

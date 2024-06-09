@@ -12,7 +12,7 @@
   background-color: var(--color-4);
   width: 35px;
   text-align: center;
-  border-radius: 50%;
+  border-radius: 40px;
 }
 
 .paginationBtn {

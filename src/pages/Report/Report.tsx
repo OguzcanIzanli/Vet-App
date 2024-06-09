@@ -1,13 +1,5 @@
 import { useState, ChangeEvent, MouseEvent } from "react";
 
-// Icons
-import IconSend from "../../assets/icons/IconSend";
-import IconDelete from "../../assets/icons/IconDelete";
-import IconSave from "../../assets/icons/IconSave";
-
-// Components
-import Pagination from "../../components/Pagination";
-
 //Queries
 import { useReportQuery } from "../../queries/useReportQuery";
 import { useAppointmentQuery } from "../../queries/useAppointmentQuery";
@@ -19,23 +11,26 @@ import {
   initialReport,
   initialReportGet,
 } from "./types";
-
 import {
   AppointmentType,
-  initialSearchByDoctorDate,
+  initialSearchByDoctorAnimalAndDateRange,
 } from "../Appointment/types";
 
-// Mui Select Input
+// Components
+import Pagination from "../../components/Pagination";
+import InputTextField from "../../components/MUI/InputTextField";
+import OperationButton from "../../components/OperationButton";
+import Toast from "../../components/Toast";
+import ListSizeSelector from "../../components/ListSizeSelector";
+
+// MUI
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import InputTextField from "../../components/InputTextField";
-
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
-import IconEdit from "../../assets/icons/IconEdit";
 
 const Report = () => {
   // States
@@ -45,23 +40,31 @@ const Report = () => {
   const [updatedReport, setUpdatedReport] = useState(initialReport);
 
   // Queries
-  const { listReports, addReport, removeReport, updateReport } = useReportQuery(
-    page,
-    size
-  );
+  const {
+    listReports,
+    addReport,
+    removeReport,
+    updateReport,
+    toast,
+    resetToast,
+  } = useReportQuery(page, size);
   const { listAppointments } = useAppointmentQuery(
     0,
     99,
-    initialSearchByDoctorDate,
-    initialSearchByDoctorDate
+    initialSearchByDoctorAnimalAndDateRange
   );
 
   const reports = listReports.data?.data.content;
   const appointments = listAppointments.data?.data.content;
   const totalPages = listReports.data?.data.totalPages;
 
-  // ADD
-  // Add Button
+  // Remove
+  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
+    const { id } = e.currentTarget;
+    removeReport.mutate(id);
+  };
+
+  // Add
   const handleAdd = () => {
     addReport.mutate(newReport);
     setNewReport(initialReport);
@@ -69,7 +72,12 @@ const Report = () => {
 
   const reportInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewReport((prev) => ({ ...prev, [name]: value }));
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
+    setNewReport((prev) => ({ ...prev, [name]: newValue }));
   };
 
   // Animal Select Input
@@ -77,51 +85,38 @@ const Report = () => {
     setNewReport({ ...newReport, appointmentId: +e.target.value });
   };
 
-  // REMOVE
-  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
-    const { id } = e.currentTarget;
-    removeReport.mutate(id);
-  };
-
-  // UPDATE
+  // Update
   const handleEdit = (item: ReportType) => {
     setUpdatedReport(item);
   };
 
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
     setUpdatedReport({
       ...updatedReport,
-      [name]: value,
+      [name]: newValue,
     });
   };
 
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.id;
+    const { id } = e.currentTarget;
     updateReport.mutate({ id, data: updatedReport });
     setUpdatedReport(initialReportGet);
   };
 
-  // DATA SIZE ON PAGE
-  const handleSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSize(+e.target.value);
-  };
-
   return (
-    <>
+    <div className="pageContainer">
       <div className="pageHeader">Rapor Yönetimi</div>
       <div className="pageListHeader">Rapor Listesi</div>
 
       <div className="filterContainer">
         <div className="searchContainer"></div>
-        <div className="listSize">
-          <p>Tabloda Gösterilecek Rapor Sayısı</p>
-          <select value={size} onChange={handleSizeChange}>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
+        <ListSizeSelector size={size} onSizeChange={setSize} label="Rapor" />
       </div>
 
       <table id="table">
@@ -178,13 +173,12 @@ const Report = () => {
                 </td>
 
                 <td>
-                  <button
-                    className="iconSave"
+                  <OperationButton
+                    className="saveBtn"
                     id={item.id?.toString()}
+                    icon="save"
                     onClick={handleUpdate}
-                  >
-                    <IconSave />
-                  </button>
+                  />
                 </td>
               </tr>
             ) : (
@@ -200,8 +194,8 @@ const Report = () => {
                   {item.appointment.date.split("T")[1].slice(0, 5)}
                 </td>
                 <td className="operationBtns">
-                  <button
-                    className="iconEdit"
+                  <OperationButton
+                    className="editBtn"
                     onClick={() =>
                       handleEdit({
                         title: item.title,
@@ -210,16 +204,14 @@ const Report = () => {
                         appointmentId: item.appointment.id,
                       })
                     }
-                  >
-                    <IconEdit />
-                  </button>
-                  <button
-                    className="iconDelete"
+                    icon="edit"
+                  />
+                  <OperationButton
+                    className="deleteBtn"
                     id={item.id?.toString()}
+                    icon="delete"
                     onClick={handleRemove}
-                  >
-                    <IconDelete />
-                  </button>
+                  />
                 </td>
               </tr>
             )
@@ -282,11 +274,19 @@ const Report = () => {
             </Select>
           </FormControl>
         </Box>
-        <button className="addBtn" onClick={handleAdd}>
-          Ekle <IconSend />
-        </button>
+        <OperationButton className="addBtn" onClick={handleAdd} icon="send">
+          Ekle
+        </OperationButton>
+
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={resetToast}
+          />
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

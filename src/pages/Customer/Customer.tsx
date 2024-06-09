@@ -1,33 +1,46 @@
 import { useState, ChangeEvent, MouseEvent } from "react";
+
+//Queries
 import { useCustomerQuery } from "../../queries/useCustomerQuery";
+
+// Types
 import { CustomerType, initialCustomer } from "./types";
-import IconSend from "../../assets/icons/IconSend";
-import IconDelete from "../../assets/icons/IconDelete";
-import IconSave from "../../assets/icons/IconSave";
+
+// Components
 import Pagination from "../../components/Pagination";
-import InputTextField from "../../components/InputTextField";
-import IconEdit from "../../assets/icons/IconEdit";
+import InputTextField from "../../components/MUI/InputTextField";
+import OperationButton from "../../components/OperationButton";
+import Toast from "../../components/Toast";
+import ListSizeSelector from "../../components/ListSizeSelector";
 
 const Customer = () => {
+  // States
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [newCustomer, setNewCustomer] = useState(initialCustomer);
   const [updatedCustomer, setUpdatedCustomer] = useState(initialCustomer);
   const [searchByName, setSearchByName] = useState("");
 
-  const { listCustomers, addCustomer, removeCustomer, updateCustomer } =
-    useCustomerQuery(page, size, searchByName);
+  //Queries
+  const {
+    listCustomers,
+    addCustomer,
+    removeCustomer,
+    updateCustomer,
+    toast,
+    resetToast,
+  } = useCustomerQuery(page, size, searchByName);
 
   const customers = listCustomers.data?.data.content;
   const totalPages = listCustomers.data?.data.totalPages;
 
-  // REMOVE
+  // Remove
   const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.id;
+    const { id } = e.currentTarget;
     removeCustomer.mutate(id);
   };
 
-  // ADD
+  // Add
   const handleAdd = () => {
     addCustomer.mutate(newCustomer);
     setNewCustomer(initialCustomer);
@@ -35,41 +48,51 @@ const Customer = () => {
 
   const customerInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewCustomer((prev) => ({ ...prev, [name]: value }));
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
+    setNewCustomer((prev) => ({ ...prev, [name]: newValue }));
   };
 
-  // UPDATE
+  // Update
   const handleEdit = (item: CustomerType) => {
     setUpdatedCustomer(item);
   };
 
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
     setUpdatedCustomer({
       ...updatedCustomer,
-      [name]: value,
+      [name]: newValue,
     });
   };
 
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.id;
+    const { id } = e.currentTarget;
     updateCustomer.mutate({ id, data: updatedCustomer });
     setUpdatedCustomer(initialCustomer);
   };
 
-  // DATA SIZE ON PAGE
-  const handleSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSize(Number(e.target.value));
-  };
-
-  // SEARCH
+  // Search
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setSearchByName(value);
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
+    setSearchByName(newValue);
   };
 
   return (
-    <>
+    <div className="pageContainer">
       <div className="pageHeader">Müşteri Yönetimi</div>
       <div className="pageListHeader">Müşteri Listesi</div>
 
@@ -82,14 +105,7 @@ const Customer = () => {
             onChange={handleSearchChange}
           />
         </div>
-        <div className="listSize">
-          <p>Tabloda Gösterilecek Müşteri Sayısı</p>
-          <select value={size} onChange={handleSizeChange}>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
+        <ListSizeSelector size={size} onSizeChange={setSize} label="Müşteri" />
       </div>
 
       <table id="table">
@@ -148,13 +164,12 @@ const Customer = () => {
                   />
                 </td>
                 <td>
-                  <button
-                    className="iconSave"
+                  <OperationButton
+                    className="saveBtn"
                     id={item.id?.toString()}
+                    icon="save"
                     onClick={handleUpdate}
-                  >
-                    <IconSave />
-                  </button>
+                  />
                 </td>
               </tr>
             ) : (
@@ -165,16 +180,17 @@ const Customer = () => {
                 <td>{item.city}</td>
                 <td>{item.phone}</td>
                 <td className="operationBtns">
-                  <button className="iconEdit" onClick={() => handleEdit(item)}>
-                    <IconEdit />
-                  </button>
-                  <button
-                    className="iconDelete"
+                  <OperationButton
+                    className="editBtn"
+                    onClick={() => handleEdit(item)}
+                    icon="edit"
+                  />
+                  <OperationButton
+                    className="deleteBtn"
                     id={item.id?.toString()}
+                    icon="delete"
                     onClick={handleRemove}
-                  >
-                    <IconDelete />
-                  </button>
+                  />
                 </td>
               </tr>
             )
@@ -220,11 +236,20 @@ const Customer = () => {
           type="number"
           onChange={customerInputChange}
         />
-        <button className="addBtn" onClick={handleAdd}>
-          Ekle <IconSend />
-        </button>
+
+        <OperationButton className="addBtn" onClick={handleAdd} icon="send">
+          Ekle
+        </OperationButton>
+
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={resetToast}
+          />
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

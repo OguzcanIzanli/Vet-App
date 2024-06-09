@@ -1,5 +1,15 @@
 import { AnimalType, initialAnimal } from "../Animal/types";
 
+export interface animalWithoutCustomerType {
+  id?: number;
+  name: string;
+  species: string;
+  breed: string;
+  gender: string;
+  dateOfBirth?: string;
+  colour: string;
+}
+
 export interface VaccinationType {
   id?: number;
   name: string;
@@ -7,16 +17,6 @@ export interface VaccinationType {
   protectionStartDate?: string;
   protectionFinishDate?: string;
   animalWithoutCustomer: animalWithoutCustomerType;
-}
-
-export interface animalWithoutCustomerType {
-  id?: number;
-  name: string;
-  species: string;
-  breed: string;
-  gender: string;
-  dateOfBirth: string;
-  colour: string;
 }
 
 export interface VaccinationGetType {
@@ -51,4 +51,9 @@ export const initialVaccinationGet: VaccinationGetType = {
   protectionStartDate: "",
   protectionFinishDate: "",
   animal: initialAnimal,
+};
+
+export const initialSearchByVaccinationRange = {
+  start: "2000-01-01",
+  end: "2100-01-01",
 };

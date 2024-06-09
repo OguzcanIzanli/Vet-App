@@ -1,58 +1,65 @@
 import { useState, ChangeEvent, MouseEvent } from "react";
-import { useAnimalQuery } from "../../queries/useAnimalQuery";
-import { AnimalType, initialAnimal } from "./types";
-import IconSend from "../../assets/icons/IconSend";
-import IconDelete from "../../assets/icons/IconDelete";
-import IconSave from "../../assets/icons/IconSave";
-import Pagination from "../../components/Pagination";
-import InputTextField from "../../components/InputTextField";
 
+//Queries
+import { useAnimalQuery } from "../../queries/useAnimalQuery";
+import { useCustomerQuery } from "../../queries/useCustomerQuery";
+
+// Types
+import { AnimalType, initialAnimal } from "./types";
+import { CustomerType } from "../Customer/types";
+
+// Components
+import Pagination from "../../components/Pagination";
+import InputTextField from "../../components/MUI/InputTextField";
+import Toast from "../../components/Toast";
+import OperationButton from "../../components/OperationButton";
+import ListSizeSelector from "../../components/ListSizeSelector";
+
+// MUI
+import dayjs from "dayjs";
 import { Dayjs } from "dayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { useCustomerQuery } from "../../queries/useCustomerQuery";
-
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { CustomerType } from "../Customer/types";
-
-import dayjs from "dayjs";
-import IconEdit from "../../assets/icons/IconEdit";
 
 const Animal = () => {
+  // States
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [newAnimal, setNewAnimal] = useState(initialAnimal);
   const [updatedAnimal, setUpdatedAnimal] = useState(initialAnimal);
   const [searchByName, setSearchByName] = useState("");
   const [searchByCustomer, setSearchByCustomer] = useState("");
-
-  const { listAnimals, addAnimal, removeAnimal, updateAnimal } = useAnimalQuery(
-    page,
-    size,
-    searchByName,
-    searchByCustomer
-  );
-
-  const { listCustomers } = useCustomerQuery(0, 99, "");
-
-  const animals = listAnimals.data?.data.content;
-  const totalPages = listAnimals.data?.data.totalPages;
-  const customers = listCustomers.data?.data.content;
   const localDate = new Date().toISOString().split("T")[0];
 
-  // REMOVE
+  // Queries
+  const {
+    listAnimals,
+    addAnimal,
+    removeAnimal,
+    updateAnimal,
+    toast,
+    resetToast,
+  } = useAnimalQuery(page, size, searchByName, searchByCustomer);
+  const { listCustomers } = useCustomerQuery(0, 99, "");
+
+  const customers = listCustomers.data?.data.content;
+  const animals = listAnimals.data?.data.content;
+  const totalPages = listAnimals.data?.data.totalPages;
+
+  // Remove
   const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.id;
+    const { id } = e.currentTarget;
     removeAnimal.mutate(id);
   };
 
-  // ADD
+  // Add
   const handleAdd = () => {
     addAnimal.mutate(newAnimal);
     setNewAnimal(initialAnimal);
@@ -60,7 +67,12 @@ const Animal = () => {
 
   const animalInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewAnimal((prev) => ({ ...prev, [name]: value }));
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
+    setNewAnimal((prev) => ({ ...prev, [name]: newValue }));
   };
 
   const dateSelectionChange = (e: Dayjs | null) => {
@@ -78,16 +90,21 @@ const Animal = () => {
     setNewAnimal({ ...newAnimal, customer: selectedCustomer });
   };
 
-  // UPDATE
+  // Update
   const handleEdit = (item: AnimalType) => {
     setUpdatedAnimal(item);
   };
 
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
     setUpdatedAnimal({
       ...updatedAnimal,
-      [name]: value,
+      [name]: newValue,
     });
   };
 
@@ -100,29 +117,26 @@ const Animal = () => {
   };
 
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.id;
+    const { id } = e.currentTarget;
     updateAnimal.mutate({ id, data: updatedAnimal });
     setUpdatedAnimal(initialAnimal);
   };
 
-  // DATA SIZE ON PAGE
-  const handleSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSize(Number(e.target.value));
-  };
+  // Search
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value, name } = e.target;
 
-  // SEARCH
-  const handleCustomerSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setSearchByCustomer(value);
-  };
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
 
-  const handleAnimalSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setSearchByName(value);
+    name === "animal"
+      ? setSearchByName(newValue)
+      : setSearchByCustomer(newValue);
   };
 
   return (
-    <>
+    <div className="pageContainer">
       <div className="pageHeader">Hayvan Yönetimi</div>
       <div className="pageListHeader">Hayvan Listesi</div>
 
@@ -131,28 +145,23 @@ const Animal = () => {
           <div className="searchInput">
             <input
               type="text"
+              name="customer"
               placeholder="Müşteri Adına Göre Arama"
               value={searchByCustomer}
-              onChange={handleCustomerSearchChange}
+              onChange={handleSearchChange}
             />
           </div>
           <div className="searchInput">
             <input
               type="text"
+              name="animal"
               placeholder="Hayvan Adına Göre Arama"
               value={searchByName}
-              onChange={handleAnimalSearchChange}
+              onChange={handleSearchChange}
             />
           </div>
         </div>
-        <div className="listSize">
-          <p>Tabloda Gösterilecek Hayvan Sayısı</p>
-          <select value={size} onChange={handleSizeChange}>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
+        <ListSizeSelector size={size} onSizeChange={setSize} label="Hayvan" />
       </div>
 
       <table id="table">
@@ -234,13 +243,12 @@ const Animal = () => {
                   </select>
                 </td>
                 <td>
-                  <button
-                    className="iconSave"
+                  <OperationButton
+                    className="saveBtn"
                     id={item.id?.toString()}
+                    icon="save"
                     onClick={handleUpdate}
-                  >
-                    <IconSave />
-                  </button>
+                  />
                 </td>
               </tr>
             ) : (
@@ -253,16 +261,17 @@ const Animal = () => {
                 <td>{item.dateOfBirth}</td>
                 <td>{item.customer.name}</td>
                 <td className="operationBtns">
-                  <button className="iconEdit" onClick={() => handleEdit(item)}>
-                    <IconEdit />
-                  </button>
-                  <button
-                    className="iconDelete"
+                  <OperationButton
+                    className="editBtn"
+                    onClick={() => handleEdit(item)}
+                    icon="edit"
+                  />
+                  <OperationButton
+                    className="deleteBtn"
                     id={item.id?.toString()}
+                    icon="delete"
                     onClick={handleRemove}
-                  >
-                    <IconDelete />
-                  </button>
+                  />
                 </td>
               </tr>
             )
@@ -318,6 +327,7 @@ const Animal = () => {
             />
           </DemoContainer>
         </LocalizationProvider>
+
         <Box sx={{ minWidth: 120 }}>
           <FormControl fullWidth>
             <InputLabel id="demo-simple-select-label">
@@ -330,19 +340,34 @@ const Animal = () => {
               label="Müşteri Seçiniz"
               onChange={customerSelectionChange}
             >
-              {customers?.map((item: CustomerType) => (
-                <MenuItem key={item.id} value={item.id}>
-                  {item.name}
+              {customers && customers.length > 0 ? (
+                customers?.map((item: CustomerType) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem value="" disabled>
+                  Kayıtlı Müşteri Bulunamadı!
                 </MenuItem>
-              ))}
+              )}
             </Select>
           </FormControl>
         </Box>
-        <button className="addBtn" onClick={handleAdd}>
-          Ekle <IconSend />
-        </button>
+
+        <OperationButton className="addBtn" onClick={handleAdd} icon="send">
+          Ekle
+        </OperationButton>
+
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={resetToast}
+          />
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

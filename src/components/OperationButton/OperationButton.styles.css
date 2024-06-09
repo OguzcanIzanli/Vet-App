@@ -1,0 +1,63 @@
+.operationBtns {
+  display: flex;
+}
+
+.deleteBtn,
+.saveBtn,
+.editBtn {
+  display: flex;
+  margin: 0 auto;
+  font-size: 1.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 2px;
+  border-radius: 16px;
+}
+
+.deleteBtn:hover {
+  background-color: #f6f5f5;
+  color: #ee4266;
+  scale: 1.2;
+}
+
+.saveBtn:hover {
+  background-color: #f6f5f5;
+  color: #337357;
+  scale: 1.2;
+}
+
+.editBtn:hover {
+  background-color: #f6f5f5;
+  color: #337357;
+  scale: 1.2;
+}
+
+.addBtn {
+  align-self: flex-end;
+  width: 350px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  gap: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(90deg, var(--color-1) 25%, var(--color-2) 100%);
+  color: white;
+  padding: 4px 0;
+  transition: all 0.2s;
+}
+
+.addBtn:hover {
+  background: linear-gradient(90deg, var(--color-2) 25%, var(--color-1) 100%);
+  scale: 0.95;
+}
+
+.addBtn:active {
+  opacity: 0.9;
+  scale: 0.9;
+}

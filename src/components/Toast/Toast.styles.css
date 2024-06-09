@@ -1,0 +1,18 @@
+.toast {
+  position: fixed;
+  font-size: 1.4rem;
+  top: 70px;
+  right: 30px;
+  border-radius: 6px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px 15px;
+  background-color: #ffffff;
+}
+
+.toast-success {
+  border-left: 16px solid #40f467;
+}
+
+.toast-error {
+  border-left: 16px solid crimson;
+}

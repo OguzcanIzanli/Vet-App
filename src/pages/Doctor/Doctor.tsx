@@ -1,88 +1,93 @@
 import { useState, ChangeEvent, MouseEvent } from "react";
+
+//Queries
 import { useDoctorQuery } from "../../queries/useDoctorQuery";
+
+// Types
 import { DoctorType, initialDoctor } from "./types";
-import IconSend from "../../assets/icons/IconSend";
-import IconDelete from "../../assets/icons/IconDelete";
-import IconSave from "../../assets/icons/IconSave";
+
+// Components
 import Pagination from "../../components/Pagination";
-import InputTextField from "../../components/InputTextField";
+import InputTextField from "../../components/MUI/InputTextField";
+import OperationButton from "../../components/OperationButton";
+import Toast from "../../components/Toast";
 import Workday from "../Workday";
-import IconEdit from "../../assets/icons/IconEdit";
+import ListSizeSelector from "../../components/ListSizeSelector";
 
 const Doctor = () => {
+  // States
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
-
-  const { listDoctors, addDoctor, removeDoctor, updateDoctor } = useDoctorQuery(
-    page,
-    size
-  );
-
   const [newDoctor, setNewDoctor] = useState(initialDoctor);
   const [updatedDoctor, setUpdatedDoctor] = useState(initialDoctor);
+
+  // Queries
+  const {
+    listDoctors,
+    addDoctor,
+    removeDoctor,
+    updateDoctor,
+    toast,
+    resetToast,
+  } = useDoctorQuery(page, size);
 
   const doctors = listDoctors.data?.data.content;
   const totalPages = listDoctors.data?.data.totalPages;
 
-  // REMOVE
+  // Remove
   const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
     const { id } = e.currentTarget;
     removeDoctor.mutate(id);
   };
 
-  // ADD
-  const handleDoctorAdd = () => {
+  // Add
+  const handleAdd = () => {
     addDoctor.mutate(newDoctor);
     setNewDoctor(initialDoctor);
   };
 
   const doctorInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewDoctor((prev) => ({ ...prev, [name]: value }));
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
+    setNewDoctor((prev) => ({ ...prev, [name]: newValue }));
   };
 
-  // UPDATE
+  // Update
   const handleEdit = (item: DoctorType) => {
     setUpdatedDoctor(item);
   };
 
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (updatedDoctor) {
-      const { name, value } = e.target;
-      setUpdatedDoctor({
-        ...updatedDoctor,
-        [name]: value,
-      });
-    }
+    const { name, value } = e.target;
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
+    setUpdatedDoctor({
+      ...updatedDoctor,
+      [name]: newValue,
+    });
   };
 
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
-    const id = e.currentTarget.id;
+    const { id } = e.currentTarget;
     updateDoctor.mutate({ id, data: updatedDoctor });
     setUpdatedDoctor(initialDoctor);
   };
 
-  // DATA SIZE ON PAGE
-  const handleSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
-    setSize(Number(value));
-  };
-
   return (
-    <>
+    <div className="pageContainer">
       <div className="pageHeader">Doktor Yönetimi</div>
       <div className="pageListHeader">Doktor Listesi</div>
 
       <div className="filterContainer">
         <div className="searchInput"></div>
-        <div className="listSize">
-          <p>Tabloda Gösterilecek Doktor Sayısı</p>
-          <select value={size} onChange={handleSizeChange}>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
+        <ListSizeSelector size={size} onSizeChange={setSize} label="Doktor" />
       </div>
 
       <table id="table">
@@ -141,13 +146,12 @@ const Doctor = () => {
                   />
                 </td>
                 <td>
-                  <button
-                    className="iconSave"
+                  <OperationButton
+                    className="saveBtn"
                     id={item.id?.toString()}
+                    icon="save"
                     onClick={handleUpdate}
-                  >
-                    <IconSave />
-                  </button>
+                  />
                 </td>
               </tr>
             ) : (
@@ -158,16 +162,17 @@ const Doctor = () => {
                 <td>{item.city}</td>
                 <td>{item.phone}</td>
                 <td className="operationBtns">
-                  <button className="iconEdit" onClick={() => handleEdit(item)}>
-                    <IconEdit />
-                  </button>
-                  <button
-                    className="iconDelete"
+                  <OperationButton
+                    className="editBtn"
+                    onClick={() => handleEdit(item)}
+                    icon="edit"
+                  />
+                  <OperationButton
+                    className="deleteBtn"
                     id={item.id?.toString()}
+                    icon="delete"
                     onClick={handleRemove}
-                  >
-                    <IconDelete />
-                  </button>
+                  />
                 </td>
               </tr>
             )
@@ -214,13 +219,21 @@ const Doctor = () => {
             type="number"
             onChange={doctorInputChange}
           />
-          <button className="addBtn" onClick={handleDoctorAdd}>
-            Doktor Ekle <IconSend />
-          </button>
+          <OperationButton className="addBtn" onClick={handleAdd} icon="send">
+            Ekle
+          </OperationButton>
+
+          {toast && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              onClose={resetToast}
+            />
+          )}
         </div>
         <Workday />
       </div>
-    </>
+    </div>
   );
 };
 

@@ -1,14 +1,6 @@
 import "./Appoinment.styles.css";
 import { useState, ChangeEvent, MouseEvent } from "react";
 
-// Icons
-import IconSend from "../../assets/icons/IconSend";
-import IconDelete from "../../assets/icons/IconDelete";
-import IconSave from "../../assets/icons/IconSave";
-
-// Components
-import Pagination from "../../components/Pagination";
-
 //Queries
 import { useAnimalQuery } from "../../queries/useAnimalQuery";
 import { useCustomerQuery } from "../../queries/useCustomerQuery";
@@ -21,13 +13,20 @@ import {
   AppointmentType,
   DateState,
   initialAppointment,
-  initialSearchByDoctorDate,
+  initialSearchByDoctorAnimalAndDateRange,
 } from "./types";
 import { CustomerType } from "../Customer/types";
 import { AnimalType } from "../Animal/types";
 import { DoctorType } from "../Doctor/types";
 import { WorkdayDoctorType } from "../Workday/types";
 
+// Components
+import Pagination from "../../components/Pagination";
+import OperationButton from "../../components/OperationButton";
+import Toast from "../../components/Toast";
+import ListSizeSelector from "../../components/ListSizeSelector";
+
+// MUI
 // Mui Select Input
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
@@ -41,7 +40,6 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import IconEdit from "../../assets/icons/IconEdit";
 
 const Appointment = () => {
   // States
@@ -50,16 +48,11 @@ const Appointment = () => {
   const [newAppointment, setNewAppointment] = useState(initialAppointment);
   const [updatedAppointment, setUpdatedAppointment] =
     useState(initialAppointment);
-
-  const [searchByDoctorAndDateRange, setSearchByDoctorAndDateRange] = useState(
-    initialSearchByDoctorDate
-  );
-  const [searchByDate, setSearchByDate] = useState(initialSearchByDoctorDate);
-
-  const [searchByAnimalAndDateRange, setSearchByAnimalAndDateRange] = useState(
-    initialSearchByDoctorDate
-  );
-
+  const [
+    searchByDoctorAnimalAndDateRange,
+    setSearchByDoctorAnimalAndDateRange,
+  ] = useState(initialSearchByDoctorAnimalAndDateRange);
+  const [searchValue, setSearchValue] = useState({ animal: 0, doctor: 0 });
   const [filteredAnimals, setFilteredAnimals] = useState<AnimalType[]>();
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
   const [doctorAvailableDates, setDoctorAvailableDates] = useState<
@@ -76,12 +69,9 @@ const Appointment = () => {
     addAppointment,
     removeAppointment,
     updateAppointment,
-  } = useAppointmentQuery(
-    page,
-    size,
-    searchByDoctorAndDateRange,
-    searchByAnimalAndDateRange
-  );
+    toast,
+    resetToast,
+  } = useAppointmentQuery(page, size, searchByDoctorAnimalAndDateRange);
   const { listAnimals } = useAnimalQuery(page, 99, "", "");
   const { listCustomers } = useCustomerQuery(page, 99, "");
   const { listDoctors } = useDoctorQuery(page, 99);
@@ -94,8 +84,13 @@ const Appointment = () => {
   const workdays = listWorkdays.data?.data.content;
   const totalPages = listAppointments.data?.data.totalPages;
 
-  // ADD
-  // Add Button
+  // Remove
+  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
+    const { id } = e.currentTarget;
+    removeAppointment.mutate(id);
+  };
+
+  // Add
   const handleAdd = () => {
     addAppointment.mutate(newAppointment);
     setNewAppointment(initialAppointment);
@@ -154,13 +149,7 @@ const Appointment = () => {
     setNewAppointment({ ...newAppointment, animal: selectedAnimal });
   };
 
-  // REMOVE
-  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
-    const { id } = e.currentTarget;
-    removeAppointment.mutate(id);
-  };
-
-  // UPDATE
+  // Update
   const handleEdit = (item: AppointmentType) => {
     setUpdatedAppointment(item);
     setDate({ ...date, dateUpdate: item.appointmentDate?.split("T")[0] });
@@ -204,17 +193,11 @@ const Appointment = () => {
 
   const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
     const id = e.currentTarget.id;
-    console.log(updatedAppointment);
     updateAppointment.mutate({ id, data: updatedAppointment });
     setUpdatedAppointment(initialAppointment);
   };
 
-  // DATA SIZE ON PAGE
-  const handleSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSize(+e.target.value);
-  };
-
-  // SEARCH
+  // Search
   // Search By Doctor And Animal, And Date Range
   const searchAreaDoctors: string[] = Array.from(
     new Set(doctors?.map((doctor: DoctorType) => `${doctor.id}-${doctor.name}`))
@@ -228,26 +211,46 @@ const Appointment = () => {
     e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-    setSearchByDate((prev) => ({ ...prev, [name]: value }));
-  };
 
-  const handleSearchBtn = (name: string) => {
-    if (name === "animal") {
-      setSearchByAnimalAndDateRange(searchByDate);
-    } else {
-      setSearchByDoctorAndDateRange(searchByDate);
+    if ((name === "start" || name === "end") && value === "") {
+      setSearchByDoctorAnimalAndDateRange(
+        initialSearchByDoctorAnimalAndDateRange
+      );
+      setSearchValue({ animal: 0, doctor: 0 });
     }
+
+    setSearchByDoctorAnimalAndDateRange((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSearchDoctorAndAnimalChange = (
+    e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    if (name === "Animal") {
+      setSearchValue({ animal: Number(value), doctor: 0 });
+    } else {
+      setSearchValue({ animal: 0, doctor: Number(value) });
+    }
+
+    setSearchByDoctorAnimalAndDateRange((prev) => ({
+      ...prev,
+      id: value,
+      searchName: name,
+    }));
+  };
   return (
-    <>
+    <div className="pageContainer">
       <div className="pageHeader">Randevu Yönetimi</div>
       <div className="pageListHeader">Randevu Listesi</div>
 
       <div className="filterContainer">
         <div className="searchContainer">
           <div className="searchSelectInput">
-            <select name="id" onChange={handleSearchDateChange}>
+            <select
+              name="Doctor"
+              value={searchValue.doctor}
+              onChange={handleSearchDoctorAndAnimalChange}
+            >
               <option value="">Doktorların Tümü</option>
               {searchAreaDoctors.map((item: string) => {
                 const [id, name] = item.split("-");
@@ -258,16 +261,14 @@ const Appointment = () => {
                 );
               })}
             </select>
-            <button
-              className="searchSelectInputBtn"
-              onClick={() => handleSearchBtn("doctor")}
-            >
-              Ara
-            </button>
           </div>
 
           <div className="searchSelectInput">
-            <select name="id" id="" onChange={handleSearchDateChange}>
+            <select
+              name="Animal"
+              value={searchValue.animal}
+              onChange={handleSearchDoctorAndAnimalChange}
+            >
               <option value="">Hayvanların Tümü</option>
               {searchAreaAnimals.map((item: string) => {
                 const [id, name] = item.split("-");
@@ -278,27 +279,25 @@ const Appointment = () => {
                 );
               })}
             </select>
-            <button
-              className="searchSelectInputBtn"
-              onClick={() => handleSearchBtn("animal")}
-            >
-              Ara
-            </button>
           </div>
-          <div className="searchDateInput">
-            <input type="date" name="start" onChange={handleSearchDateChange} />
-            -
-            <input type="date" name="end" onChange={handleSearchDateChange} />
-          </div>
+          {(searchValue.animal != 0 || searchValue.doctor != 0) && (
+            <div className="searchDateInput">
+              <input
+                type="date"
+                name="start"
+                onChange={handleSearchDateChange}
+              />
+              -
+              <input
+                type="date"
+                name="end"
+                min={searchByDoctorAnimalAndDateRange.start}
+                onChange={handleSearchDateChange}
+              />
+            </div>
+          )}
         </div>
-        <div className="listSize">
-          <p>Tabloda Gösterilecek Randevu Sayısı</p>
-          <select value={size} onChange={handleSizeChange}>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
+        <ListSizeSelector size={size} onSizeChange={setSize} label="Randevu" />
       </div>
 
       <table id="table">
@@ -358,13 +357,12 @@ const Appointment = () => {
                 <td>{item.animal.customer.phone}</td>
                 <td>{item.doctor.phone}</td>
                 <td>
-                  <button
-                    className="iconSave"
+                  <OperationButton
+                    className="saveBtn"
                     id={item.id?.toString()}
+                    icon="save"
                     onClick={handleUpdate}
-                  >
-                    <IconSave />
-                  </button>
+                  />
                 </td>
               </tr>
             ) : (
@@ -377,16 +375,17 @@ const Appointment = () => {
                 <td>{item.animal.customer.phone}</td>
                 <td>{item.doctor.phone}</td>
                 <td className="operationBtns">
-                  <button className="iconEdit" onClick={() => handleEdit(item)}>
-                    <IconEdit />
-                  </button>
-                  <button
-                    className="iconDelete"
+                  <OperationButton
+                    className="editBtn"
+                    onClick={() => handleEdit(item)}
+                    icon="edit"
+                  />
+                  <OperationButton
+                    className="deleteBtn"
                     id={item.id?.toString()}
+                    icon="delete"
                     onClick={handleRemove}
-                  >
-                    <IconDelete />
-                  </button>
+                  />
                 </td>
               </tr>
             )
@@ -409,11 +408,17 @@ const Appointment = () => {
               label="Doktor Seçiniz"
               onChange={doctorSelectionChange}
             >
-              {doctors?.map((item: DoctorType) => (
-                <MenuItem key={item.id} value={item.id}>
-                  {item.name}
+              {doctors && doctors.length > 0 ? (
+                doctors?.map((item: DoctorType) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem value="" disabled>
+                  Kayıtlı Doktor Bulunamadı!
                 </MenuItem>
-              ))}
+              )}
             </Select>
           </FormControl>
         </Box>
@@ -432,16 +437,16 @@ const Appointment = () => {
                   label="Gün Seçiniz"
                   onChange={dateSelectionChange}
                 >
-                  {doctorAvailableDates[0] != null ? (
+                  {doctorAvailableDates && doctorAvailableDates.length > 0 ? (
                     doctorAvailableDates?.map((item: WorkdayDoctorType) => (
                       <MenuItem key={item.id} value={item.workDay}>
                         {item.workDay}
                       </MenuItem>
                     ))
                   ) : (
-                    <div style={{ padding: "0 8px" }}>
-                      Bu Doktora Ait Uygun Randevu Bulunamadı!
-                    </div>
+                    <MenuItem value="" disabled>
+                      Uygun Randevu Bulunamadı!
+                    </MenuItem>
                   )}
                 </Select>
               </FormControl>
@@ -482,11 +487,17 @@ const Appointment = () => {
               label="Müşteri Seçiniz"
               onChange={customerSelectionChange}
             >
-              {customers?.map((item: CustomerType) => (
-                <MenuItem key={item.id} value={item.id}>
-                  {item.name}
+              {customers && customers.length > 0 ? (
+                customers?.map((item: CustomerType) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem value="" disabled>
+                  Müşteri Bulunamadı!
                 </MenuItem>
-              ))}
+              )}
             </Select>
           </FormControl>
         </Box>
@@ -511,19 +522,27 @@ const Appointment = () => {
                     </MenuItem>
                   ))
                 ) : (
-                  <div style={{ padding: "0 8px" }}>
+                  <MenuItem value="" disabled>
                     Bu Müşteriye Ait Hayvan Bulunamadı!
-                  </div>
+                  </MenuItem>
                 )}
               </Select>
             </FormControl>
           </Box>
         )}
-        <button className="addBtn" onClick={handleAdd}>
-          Ekle <IconSend />
-        </button>
+        <OperationButton className="addBtn" onClick={handleAdd} icon="send">
+          Ekle
+        </OperationButton>
+
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={resetToast}
+          />
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

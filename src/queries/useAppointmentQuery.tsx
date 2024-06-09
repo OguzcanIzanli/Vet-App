@@ -1,3 +1,4 @@
+import { useState } from "react";
 import backend from "../services/backend";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { AppointmentType } from "../pages/Appointment/types";
@@ -5,36 +6,42 @@ import { AppointmentType } from "../pages/Appointment/types";
 export const useAppointmentQuery = (
   page: number,
   size: number,
-  searchByDoctorAndDateRange: { id: string; start: string; end: string },
-  searchByAnimalAndDateRange: { id: string; start: string; end: string }
+  searchByDoctorAnimalAndDateRange: {
+    id: string;
+    start: string;
+    end: string;
+    searchName: string;
+  }
 ) => {
   const queryClient = useQueryClient();
 
+  const shouldFetchFiltered =
+    searchByDoctorAnimalAndDateRange.id !== "" ||
+    searchByDoctorAnimalAndDateRange.start !== "2000-01-01" ||
+    searchByDoctorAnimalAndDateRange.end !== "2100-01-01" ||
+    searchByDoctorAnimalAndDateRange.searchName !== "";
+
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
+  const resetToast = () => {
+    setToast(null);
+  };
+
+  // Get
   const listAppointments = useQuery({
-    queryKey: [
-      "appointments",
-      page,
-      size,
-      searchByDoctorAndDateRange,
-      searchByAnimalAndDateRange,
-    ],
+    queryKey: ["appointments", page, size, searchByDoctorAnimalAndDateRange],
     queryFn: () =>
-      searchByAnimalAndDateRange.id !== ""
-        ? backend.appointmentService.searchByAnimalAndDateRange(
-            searchByAnimalAndDateRange
-          )
-        : searchByDoctorAndDateRange.id !== ""
-        ? backend.appointmentService.searchByDoctorAndDateRange(
-            searchByDoctorAndDateRange
+      shouldFetchFiltered
+        ? backend.appointmentService.searchByDoctorAnimalAndDateRange(
+            searchByDoctorAnimalAndDateRange
           )
         : backend.appointmentService.list(page, size),
   });
 
-  // const findAppoinment = useQuery({
-  //   queryKey: ["appoinment", id],
-  //   queryFn: () => backend.appointmentService.find(id).then((res) => res),
-  // });
-
+  // Post
   const addAppointment = useMutation({
     mutationFn: (newAppointment: AppointmentType) =>
       backend.appointmentService.post(newAppointment),
@@ -43,12 +50,19 @@ export const useAppointmentQuery = (
         "appointments",
         page,
         size,
-        searchByDoctorAndDateRange,
-        searchByAnimalAndDateRange,
+        searchByDoctorAnimalAndDateRange,
       ]);
+      setToast({ message: "Randevu başarıyla eklendi!", type: "success" });
+    },
+    onError: () => {
+      setToast({
+        message: "Randevu eklenirken bir hata oluştu!",
+        type: "error",
+      });
     },
   });
 
+  // Delete
   const removeAppointment = useMutation({
     mutationFn: (id: string) => backend.appointmentService.remove(id),
     onSuccess: () => {
@@ -56,12 +70,19 @@ export const useAppointmentQuery = (
         "appointments",
         page,
         size,
-        searchByDoctorAndDateRange,
-        searchByAnimalAndDateRange,
+        searchByDoctorAnimalAndDateRange,
       ]);
+      setToast({ message: "Randevu başarıyla silindi!", type: "success" });
+    },
+    onError: () => {
+      setToast({
+        message: "Randevu silinirken bir hata oluştu!",
+        type: "error",
+      });
     },
   });
 
+  // Put
   const updateAppointment = useMutation({
     mutationFn: (updatedAppointment: { id: string; data: AppointmentType }) =>
       backend.appointmentService.put(
@@ -73,9 +94,15 @@ export const useAppointmentQuery = (
         "appointments",
         page,
         size,
-        searchByDoctorAndDateRange,
-        searchByAnimalAndDateRange,
+        searchByDoctorAnimalAndDateRange,
       ]);
+      setToast({ message: "Randevu bilgileri güncellendi!", type: "success" });
+    },
+    onError: () => {
+      setToast({
+        message: "Randevu bilgileri güncellenirken bir hata oluştu!",
+        type: "error",
+      });
     },
   });
 
@@ -84,5 +111,7 @@ export const useAppointmentQuery = (
     addAppointment,
     removeAppointment,
     updateAppointment,
+    toast,
+    resetToast,
   };
 };

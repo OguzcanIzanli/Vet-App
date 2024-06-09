@@ -1,82 +1,73 @@
 import { useState, ChangeEvent, MouseEvent } from "react";
 
-// Icons
-import IconSend from "../../assets/icons/IconSend";
-import IconDelete from "../../assets/icons/IconDelete";
-import IconSave from "../../assets/icons/IconSave";
-
-// Components
-import Pagination from "../../components/Pagination";
-
 //Queries
 import { useVaccinationQuery } from "../../queries/useVaccinationQuery";
-import { useAppointmentQuery } from "../../queries/useAppointmentQuery";
-import { useReportQuery } from "../../queries/useReportQuery";
+import { useAnimalQuery } from "../../queries/useAnimalQuery";
 
 //Types
 import {
   VaccinationGetType,
-  VaccinationType,
+  initialSearchByVaccinationRange,
   initialVaccination,
+  initialVaccinationGet,
 } from "./types";
+import { AnimalType } from "../Animal/types";
 
-import {
-  AppointmentType,
-  initialAppointment,
-  initialSearchByDoctorDate,
-} from "../Appointment/types";
+// Components
+import Pagination from "../../components/Pagination";
+import InputTextField from "../../components/MUI/InputTextField";
+import ListSizeSelector from "../../components/ListSizeSelector";
+import Toast from "../../components/Toast";
+import OperationButton from "../../components/OperationButton";
 
-// Mui Select Input
+// MUI
+import dayjs from "dayjs";
+import { Dayjs } from "dayjs";
 import Box from "@mui/material/Box";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import InputTextField from "../../components/InputTextField";
-
-import IconEdit from "../../assets/icons/IconEdit";
-
-import { Dayjs } from "dayjs";
-// import dayjs from "dayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { useAnimalQuery } from "../../queries/useAnimalQuery";
-import { AnimalType } from "../Animal/types";
-import {
-  ReportGetType,
-  initialReport,
-  initialReportGet,
-} from "../Report/types";
 
 const Vaccination = () => {
   // States
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [newVaccination, setNewVaccination] = useState(initialVaccination);
-  const [updatedVaccination, setUpdatedVaccination] =
-    useState(initialVaccination);
+  const [updatedVaccination, setUpdatedVaccination] = useState(
+    initialVaccinationGet
+  );
+  const [searchByAnimal, setSearchByAnimal] = useState("");
+  const [searchByVaccinationRange, setSearchByVaccinationRange] = useState(
+    initialSearchByVaccinationRange
+  );
 
-  const [filteredReports, setFilteredReports] = useState([]);
   // Queries
   const {
     listVaccinations,
     addVaccination,
     removeVaccination,
-    // updateVaccination,
-  } = useVaccinationQuery(page, size, "");
-  const { listReports } = useReportQuery(0, 99);
-
+    updateVaccination,
+    toast,
+    resetToast,
+  } = useVaccinationQuery(page, size, searchByAnimal, searchByVaccinationRange);
   const { listAnimals } = useAnimalQuery(0, 99, "", "");
 
   const vaccinations = listVaccinations.data?.data.content;
-  const reports = listReports.data?.data.content;
   const animals = listAnimals.data?.data.content;
   const totalPages = listVaccinations.data?.data.totalPages;
 
-  // ADD
-  // Add Button
+  // Remove
+  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
+    const { id } = e.currentTarget;
+    removeVaccination.mutate(id);
+  };
+
+  // Add
   const handleAdd = () => {
     addVaccination.mutate(newVaccination);
     setNewVaccination(initialVaccination);
@@ -84,8 +75,12 @@ const Vaccination = () => {
 
   const vaccinationInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setNewVaccination((prev) => ({ ...prev, [name]: value }));
-    console.log(newVaccination);
+
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
+
+    setNewVaccination((prev) => ({ ...prev, [name]: newValue }));
   };
 
   const dateSelectionChange = (e: Dayjs | null) => {
@@ -110,14 +105,6 @@ const Vaccination = () => {
       (item: AnimalType) => item.id === +e.target.value
     );
 
-    setFilteredReports(() =>
-      reports.filter(
-        (item: ReportGetType) =>
-          item.appointment.animalName === selectedAnimal.name &&
-          item.appointment.customerName === selectedAnimal.customer.name
-      )
-    );
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { customer, ...animalWithoutCustomer } = selectedAnimal;
 
@@ -125,55 +112,104 @@ const Vaccination = () => {
       ...newVaccination,
       animalWithoutCustomer: animalWithoutCustomer,
     });
-
-    console.log(filteredReports);
   };
 
-  // REMOVE
-  const handleRemove = (e: MouseEvent<HTMLButtonElement>) => {
-    const { id } = e.currentTarget;
-    removeVaccination.mutate(id);
+  // Update
+  const handleEdit = (item: VaccinationGetType) => {
+    setUpdatedVaccination(item);
   };
 
-  // UPDATE
-  // const handleEdit = (item: VaccinationType) => {
-  //   setUpdatedVaccination(item);
-  // };
+  const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
 
-  // const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   setUpdatedVaccination({
-  //     ...updatedVaccination,
-  //     [name]: value,
-  //   });
-  // };
+    const newValue =
+      value.slice(0, 1).toLocaleUpperCase() +
+      value.slice(1).toLocaleLowerCase();
 
-  // const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
-  //   const id = e.currentTarget.id;
-  //   updateVaccination.mutate({ id, data: updatedVaccination });
-  //   setUpdatedVaccination(initialVaccination);
-  // };
+    setUpdatedVaccination({
+      ...updatedVaccination,
+      [name]: newValue,
+    });
+  };
 
-  // // DATA SIZE ON PAGE
-  const handleSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSize(+e.target.value);
+  const handleUpdate = (e: MouseEvent<HTMLButtonElement>) => {
+    const id = e.currentTarget.id;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { animal, ...vaccinationWithoutAnimal } = updatedVaccination;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { customer, ...animalWithoutCustomer } = animal;
+    const vaccinationWithoutCustomer = {
+      ...vaccinationWithoutAnimal,
+      animalWithoutCustomer,
+    };
+    console.log("id:", id, "Putted Vaccination:", vaccinationWithoutCustomer);
+    updateVaccination.mutate({ id, data: vaccinationWithoutCustomer });
+    setUpdatedVaccination(initialVaccinationGet);
+  };
+
+  // Search
+  const searchAreaAnimals: string[] = Array.from(
+    new Set(
+      animals?.map(
+        (animal: AnimalType) =>
+          `${animal.id}-${animal.name}-${animal.customer.name}`
+      )
+    )
+  );
+
+  const handleAnimalSearchChange = (
+    e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
+  ) => {
+    const { value } = e.target;
+    setSearchByAnimal(value);
+  };
+
+  const handleSearchDateChange = (
+    e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setSearchByVaccinationRange((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <>
+    <div className="pageContainer">
       <div className="pageHeader">Aşı Yönetimi</div>
       <div className="pageListHeader">Aşı Listesi</div>
 
       <div className="filterContainer">
-        <div className="searchContainer"></div>
-        <div className="listSize">
-          <p>Tabloda Gösterilecek Aşı Sayısı</p>
-          <select value={size} onChange={handleSizeChange}>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
+        <div className="searchContainer">
+          <div className="searchSelectInput">
+            <select name="doctor" onChange={handleAnimalSearchChange}>
+              <option value="">Hayvanların Tümü</option>
+              {searchAreaAnimals.map((item: string) => {
+                const [id, name, customer] = item.split("-");
+                return (
+                  <option value={id} key={id}>
+                    {name} - Sahibi: {customer}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          <div className="searchDateInput">
+            <label htmlFor="start">Koruma Bitiş Tarihine Göre Filtrele: </label>
+            <input
+              id="start"
+              type="date"
+              name="start"
+              onChange={handleSearchDateChange}
+            />
+            -
+            <input
+              type="date"
+              name="end"
+              min={searchByVaccinationRange.start}
+              onChange={handleSearchDateChange}
+            />
+          </div>
         </div>
+        <ListSizeSelector size={size} onSizeChange={setSize} label="Aşı" />
       </div>
 
       <table id="table">
@@ -181,10 +217,10 @@ const Vaccination = () => {
           <tr>
             <th>Aşı</th>
             <th>Aşı Kodu</th>
-            <th>Koruma Başlangıç Tarihi</th>
-            <th>Koruma Bitiş Tarihi</th>
+            <th>Koruma Başlangıç</th>
+            <th>Koruma Bitiş</th>
             <th>Hayvan Adı</th>
-            <th>Rapor Başlığı</th>
+            <th>Müşteri</th>
             <th>İşlemler</th>
           </tr>
         </thead>
@@ -194,8 +230,8 @@ const Vaccination = () => {
               <tr key={item.id}>
                 <td>
                   <input
-                    name="title"
-                    value={updatedVaccination.title}
+                    name="name"
+                    value={updatedVaccination.name}
                     type="text"
                     onChange={handleFieldChange}
                   />
@@ -203,8 +239,8 @@ const Vaccination = () => {
 
                 <td>
                   <input
-                    name="diagnosis"
-                    value={updatedVaccination.diagnosis}
+                    name="code"
+                    value={updatedVaccination.code}
                     type="text"
                     onChange={handleFieldChange}
                   />
@@ -212,30 +248,32 @@ const Vaccination = () => {
 
                 <td>
                   <input
-                    name="price"
-                    value={updatedVaccination.price}
-                    type="number"
+                    name="protectionStartDate"
+                    value={updatedVaccination.protectionStartDate}
+                    type="date"
                     onChange={handleFieldChange}
                   />
                 </td>
 
-                <td>{item.appointment.animalName}</td>
-                <td>{item.appointment.doctorName}</td>
-                <td>{item.appointment.customerName}</td>
-
                 <td>
-                  {item.appointment.date.split("T")[0]} -{" "}
-                  {item.appointment.date.split("T")[1].slice(0, 5)}
+                  <input
+                    name="protectionFinishDate"
+                    value={updatedVaccination.protectionFinishDate}
+                    type="date"
+                    onChange={handleFieldChange}
+                  />
                 </td>
 
+                <td>{item.animal.name}</td>
+                <td>{item.animal.customer.name}</td>
+
                 <td>
-                  <button
-                    className="iconSave"
+                  <OperationButton
+                    className="saveBtn"
                     id={item.id?.toString()}
+                    icon="save"
                     onClick={handleUpdate}
-                  >
-                    <IconSave />
-                  </button>
+                  />
                 </td>
               </tr>
             ) : (
@@ -245,19 +283,20 @@ const Vaccination = () => {
                 <td>{item.protectionStartDate}</td>
                 <td>{item.protectionFinishDate}</td>
                 <td>{item.animal.name}</td>
-                <td>Rapor Basligi</td>
+                <td>{item.animal.customer.name}</td>
 
                 <td className="operationBtns">
-                  <button className="iconEdit" onClick={() => handleEdit(item)}>
-                    <IconEdit />
-                  </button>
-                  <button
-                    className="iconDelete"
+                  <OperationButton
+                    className="editBtn"
+                    onClick={() => handleEdit(item)}
+                    icon="edit"
+                  />
+                  <OperationButton
+                    className="deleteBtn"
                     id={item.id?.toString()}
+                    icon="delete"
                     onClick={handleRemove}
-                  >
-                    <IconDelete />
-                  </button>
+                  />
                 </td>
               </tr>
             )
@@ -300,7 +339,7 @@ const Vaccination = () => {
               <DatePicker
                 value={null}
                 label="Koruma Bitiş Tarihi"
-                // maxDate={dayjs(localDate)}
+                minDate={dayjs(newVaccination.protectionStartDate)}
                 onChange={dateSelectionChange}
               />
             </DemoContainer>
@@ -325,44 +364,26 @@ const Vaccination = () => {
             >
               {animals?.map((item: AnimalType) => (
                 <MenuItem key={item.id} value={item.id}>
-                  {item.name} - {item.customer.name}
+                  {item.name} - Sahibi: {item.customer.name}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </Box>
 
-        {filteredReports && (
-          <Box sx={{ minWidth: 120 }}>
-            <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">
-                Hayvana Ait Bir Raporu Seçin
-              </InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={
-                  newVaccination.animalWithoutCustomer.id
-                    ? newVaccination.animalWithoutCustomer.id.toString()
-                    : ""
-                }
-                label="Hayvana Ait Bir Raporu Seçin"
-                onChange={animalSelectionChange}
-              >
-                {filteredReports?.map((item: ReportGetType) => (
-                  <MenuItem key={item.id} value={item.id}>
-                    {item.title}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
+        <OperationButton className="addBtn" onClick={handleAdd} icon="send">
+          Ekle
+        </OperationButton>
+
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={resetToast}
+          />
         )}
-        <button className="addBtn" onClick={handleAdd}>
-          Ekle <IconSend />
-        </button>
       </div>
-    </>
+    </div>
   );
 };
 

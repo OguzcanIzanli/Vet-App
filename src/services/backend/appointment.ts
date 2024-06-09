@@ -15,20 +15,12 @@ export const put = (id: string, data: AppointmentType) =>
 
 export const find = (id: string) => instance.get(`/api/v1/appointments/${id}`);
 
-export const searchByDoctorAndDateRange = (data: {
+export const searchByDoctorAnimalAndDateRange = (data: {
   id: string;
   start: string;
   end: string;
+  searchName: string;
 }) =>
   instance.get(
-    `/api/v1/appointments/searchByDoctorAndDateRange?id=${data.id}&startDate=${data.start}&endDate=${data.end}&pageNumber=0&pageSize=10`
-  );
-
-export const searchByAnimalAndDateRange = (data: {
-  id: string;
-  start: string;
-  end: string;
-}) =>
-  instance.get(
-    `/api/v1/appointments/searchByAnimalAndDateRange?id=${data.id}&startDate=${data.start}&endDate=${data.end}&pageNumber=0&pageSize=10`
+    `/api/v1/appointments/searchBy${data.searchName}AndDateRange?id=${data.id}&startDate=${data.start}&endDate=${data.end}&pageNumber=0&pageSize=10`
   );
