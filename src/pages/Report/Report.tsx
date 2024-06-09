@@ -264,13 +264,19 @@ const Report = () => {
               label="Randevu Seçiniz"
               onChange={appointmentSelectionChange}
             >
-              {appointments?.map((item: AppointmentType) => (
-                <MenuItem key={item.id} value={item.id}>
-                  Doktor: {item.doctor.name} - Hayvan: {item.animal.name} -
-                  Tarih: {item.appointmentDate?.split("T")[0]} - Saat:{" "}
-                  {item.appointmentDate?.split("T")[1].slice(0, 5)}
+              {appointments && appointments.length > 0 ? (
+                appointments?.map((item: AppointmentType) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    Doktor: {item.doctor.name} - Hayvan: {item.animal.name} -
+                    Tarih: {item.appointmentDate?.split("T")[0]} - Saat:{" "}
+                    {item.appointmentDate?.split("T")[1].slice(0, 5)}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem value="" disabled>
+                  Kayıtlı Randevu Bulunamadı!
                 </MenuItem>
-              ))}
+              )}
             </Select>
           </FormControl>
         </Box>

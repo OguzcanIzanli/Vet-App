@@ -21,7 +21,7 @@ export const post = (data: CustomerType) =>
   instance.post("/api/v1/customers", data);
 
 // Get :search
-export const searchByName = (name: string) =>
+export const searchByName = (name: string, page: number, size: number) =>
   instance.get(
-    `/api/v1/customers/searchByName?name=${name}&pageNumber=0&pageSize=10`
+    `/api/v1/customers/searchByName?name=${name}&pageNumber=${page}&pageSize=${size}`
   );

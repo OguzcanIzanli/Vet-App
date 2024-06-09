@@ -168,7 +168,12 @@ const Vaccination = () => {
     e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-    setSearchByVaccinationRange((prev) => ({ ...prev, [name]: value }));
+    setSearchByVaccinationRange((prev) => ({
+      ...prev,
+      [name]: value,
+      page: page,
+      size: size,
+    }));
   };
 
   return (
@@ -193,7 +198,7 @@ const Vaccination = () => {
           </div>
 
           <div className="searchDateInput">
-            <label htmlFor="start">Koruma Bitiş Tarihine Göre Filtrele: </label>
+            <label htmlFor="start">Koruma Bitiş Aralığı: </label>
             <input
               id="start"
               type="date"
@@ -362,11 +367,17 @@ const Vaccination = () => {
               label="Hayvan Seçiniz"
               onChange={animalSelectionChange}
             >
-              {animals?.map((item: AnimalType) => (
-                <MenuItem key={item.id} value={item.id}>
-                  {item.name} - Sahibi: {item.customer.name}
+              {animals && animals.length > 0 ? (
+                animals?.map((item: AnimalType) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name} - Sahibi: {item.customer.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem value="" disabled>
+                  Kayıtlı Hayvan Bulunamadı!
                 </MenuItem>
-              ))}
+              )}
             </Select>
           </FormControl>
         </Box>

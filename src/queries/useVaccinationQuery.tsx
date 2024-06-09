@@ -7,7 +7,12 @@ export const useVaccinationQuery = (
   page: number,
   size: number,
   searchByAnimal: string,
-  searchByVaccinationRange: { start: string; end: string }
+  searchByVaccinationRange: {
+    start: string;
+    end: string;
+    page: number;
+    size: number;
+  }
 ) => {
   const queryClient = useQueryClient();
 
@@ -35,7 +40,7 @@ export const useVaccinationQuery = (
     ],
     queryFn: () =>
       searchByAnimal
-        ? backend.vaccinationService.searchByAnimal(searchByAnimal)
+        ? backend.vaccinationService.searchByAnimal(searchByAnimal, page, size)
         : shouldFetchFiltered
         ? backend.vaccinationService.searchByVaccinationRange(
             searchByVaccinationRange

@@ -141,7 +141,7 @@ const Doctor = () => {
                   <input
                     name="phone"
                     value={updatedDoctor.phone}
-                    type="number"
+                    type="text"
                     onChange={handleFieldChange}
                   />
                 </td>
@@ -216,7 +216,7 @@ const Doctor = () => {
             label="Doktor Telefon"
             name="phone"
             value={newDoctor.phone}
-            type="number"
+            type="text"
             onChange={doctorInputChange}
           />
           <OperationButton className="addBtn" onClick={handleAdd} icon="send">

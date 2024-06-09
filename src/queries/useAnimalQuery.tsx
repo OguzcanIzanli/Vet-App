@@ -25,9 +25,9 @@ export const useAnimalQuery = (
     queryKey: ["animals", page, size, searchByName, searchByCustomer],
     queryFn: () =>
       searchByName
-        ? backend.animalService.searchByName(searchByName)
+        ? backend.animalService.searchByName(searchByName, page, size)
         : searchByCustomer
-        ? backend.animalService.searchByCustomer(searchByCustomer)
+        ? backend.animalService.searchByCustomer(searchByCustomer, page, size)
         : backend.animalService.list(page, size),
   });
 

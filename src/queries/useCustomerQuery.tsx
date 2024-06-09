@@ -24,7 +24,7 @@ export const useCustomerQuery = (
     queryKey: ["customers", page, size, searchByName],
     queryFn: () =>
       searchByName
-        ? backend.customerService.searchByName(searchByName)
+        ? backend.customerService.searchByName(searchByName, page, size)
         : backend.customerService.list(page, size),
   });
 

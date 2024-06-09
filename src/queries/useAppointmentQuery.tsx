@@ -11,6 +11,8 @@ export const useAppointmentQuery = (
     start: string;
     end: string;
     searchName: string;
+    page: number;
+    size: number;
   }
 ) => {
   const queryClient = useQueryClient();

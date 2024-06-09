@@ -24,4 +24,6 @@ export const initialSearchByDoctorAnimalAndDateRange = {
   start: "2000-01-01",
   end: "2100-01-01",
   searchName: "",
+  page: 0,
+  size: 10,
 };

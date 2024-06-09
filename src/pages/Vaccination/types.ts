@@ -56,4 +56,6 @@ export const initialVaccinationGet: VaccinationGetType = {
 export const initialSearchByVaccinationRange = {
   start: "2000-01-01",
   end: "2100-01-01",
+  page: 0,
+  size: 10,
 };

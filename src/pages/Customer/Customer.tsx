@@ -159,7 +159,7 @@ const Customer = () => {
                   <input
                     name="phone"
                     value={updatedCustomer.phone}
-                    type="number"
+                    type="text"
                     onChange={handleFieldChange}
                   />
                 </td>
@@ -233,7 +233,7 @@ const Customer = () => {
           label="Müşteri Telefon"
           name="phone"
           value={newCustomer.phone}
-          type="number"
+          type="text"
           onChange={customerInputChange}
         />
 

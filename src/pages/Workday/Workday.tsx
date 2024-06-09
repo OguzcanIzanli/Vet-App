@@ -128,11 +128,17 @@ const Workday = () => {
             label="Doktor Seçiniz"
             onChange={doctorSelectionChange}
           >
-            {doctors?.map((item: DoctorType) => (
-              <MenuItem key={item.id} value={item.id}>
-                {item.name}
+            {doctors && doctors.length > 0 ? (
+              doctors?.map((item: DoctorType) => (
+                <MenuItem key={item.id} value={item.id}>
+                  {item.name}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value="" disabled>
+                Kayıtlı Doktor Bulunamadı!
               </MenuItem>
-            ))}
+            )}
           </Select>
         </FormControl>
       </Box>

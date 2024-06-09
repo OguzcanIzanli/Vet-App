@@ -219,7 +219,12 @@ const Appointment = () => {
       setSearchValue({ animal: 0, doctor: 0 });
     }
 
-    setSearchByDoctorAnimalAndDateRange((prev) => ({ ...prev, [name]: value }));
+    setSearchByDoctorAnimalAndDateRange((prev) => ({
+      ...prev,
+      [name]: value,
+      page: page,
+      size: size,
+    }));
   };
 
   const handleSearchDoctorAndAnimalChange = (
@@ -236,6 +241,8 @@ const Appointment = () => {
       ...prev,
       id: value,
       searchName: name,
+      page: page,
+      size: size,
     }));
   };
   return (

@@ -22,7 +22,10 @@
 }
 
 .loginButton {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
   padding: 10px 20px;
   margin-top: 20px;
   background-color: var(--color-3);

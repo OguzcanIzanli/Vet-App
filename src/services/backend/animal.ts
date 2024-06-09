@@ -20,12 +20,12 @@ export const post = (data: AnimalType) =>
   instance.post("/api/v1/animals", data);
 
 // Get :search
-export const searchByName = (name: string) =>
+export const searchByName = (name: string, page: number, size: number) =>
   instance.get(
-    `/api/v1/animals/searchByName?name=${name}&pageNumber=0&pageSize=10`
+    `/api/v1/animals/searchByName?name=${name}&pageNumber=${page}&pageSize=${size}`
   );
 
-export const searchByCustomer = (name: string) =>
+export const searchByCustomer = (name: string, page: number, size: number) =>
   instance.get(
-    `/api/v1/animals/searchByCustomer?customerName=${name}&pageNumber=0&pageSize=10`
+    `/api/v1/animals/searchByCustomer?customerName=${name}&pageNumber=${page}&pageSize=${size}`
   );

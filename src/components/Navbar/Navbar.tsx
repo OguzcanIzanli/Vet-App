@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import IconPaw from "../../assets/icons/IconPaw";
 import IconPlus from "../../assets/icons/IconPlus";
 import IconClose from "../../assets/icons/IconClose";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const pagesRouterRight = [
   { route: "customer", title: "Müşteri" },
@@ -20,12 +20,27 @@ const pagesRouterLeft = [
 const Navbar = () => {
   const [dropdown, setDropdown] = useState(false);
 
+  // Close the dropdown menu when click the document except navbar
+  useEffect(() => {
+    document.addEventListener("click", (e) => {
+      if (e.clientY > 60) {
+        setDropdown(false);
+      }
+    });
+
+    // Close the dropdown menu when scrolling
+    document.addEventListener("scroll", () => {
+      window.scrollY > 0;
+      setDropdown(false);
+    });
+  }, []);
+
   return (
     <div id="navbar">
       <div className="navbarLeftSide">
         <Link className="iconHome" to={"/"}>
           <IconPaw className="iconPaw" />
-          <p>Vet</p>
+          <p>VYS</p>
         </Link>
         <div className="navbarLeftSideBtns">
           {pagesRouterLeft.map((page) => (
@@ -35,7 +50,6 @@ const Navbar = () => {
           ))}
         </div>
       </div>
-
       <div className="navbarRightSide">
         <div className={`dropdownBtns ${dropdown ? "dropdownBtnsOpen" : ""}`}>
           {pagesRouterRight.map((page) => (

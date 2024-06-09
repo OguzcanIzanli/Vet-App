@@ -20,7 +20,9 @@ export const searchByDoctorAnimalAndDateRange = (data: {
   start: string;
   end: string;
   searchName: string;
+  page: number;
+  size: number;
 }) =>
   instance.get(
-    `/api/v1/appointments/searchBy${data.searchName}AndDateRange?id=${data.id}&startDate=${data.start}&endDate=${data.end}&pageNumber=0&pageSize=10`
+    `/api/v1/appointments/searchBy${data.searchName}AndDateRange?id=${data.id}&startDate=${data.start}&endDate=${data.end}&pageNumber=${data.page}&pageSize=${data.size}`
   );

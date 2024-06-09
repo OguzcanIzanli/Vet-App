@@ -21,15 +21,17 @@ export const post = (data: VaccinationType) =>
   instance.post("/api/v1/vaccinations", data);
 
 // Get :search
-export const searchByAnimal = (id: string) =>
+export const searchByAnimal = (id: string, page: number, size: number) =>
   instance.get(
-    `/api/v1/vaccinations/searchByAnimal?id=${id}&pageNumber=0&pageSize=10`
+    `/api/v1/vaccinations/searchByAnimal?id=${id}&pageNumber=${page}&pageSize=${size}`
   );
 
 export const searchByVaccinationRange = (data: {
   start: string;
   end: string;
+  page: number;
+  size: number;
 }) =>
   instance.get(
-    `api/v1/vaccinations/searchByVaccinationRange?startDate=${data.start}&endDate=${data.end}&pageNumber=0&pageSize=10`
+    `api/v1/vaccinations/searchByVaccinationRange?startDate=${data.start}&endDate=${data.end}&pageNumber=${data.page}&pageSize=${data.size}`
   );

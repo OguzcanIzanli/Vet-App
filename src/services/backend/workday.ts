@@ -15,7 +15,7 @@ export const remove = (id: string) =>
 
 // Get
 export const list = () =>
-  instance.get(`/api/v1/available-dates?pageNumber=0&pageSize=30`);
+  instance.get(`/api/v1/available-dates?pageNumber=0&pageSize=100`);
 
 // Post
 export const post = (data: WorkdayType) =>
